@@ -1,0 +1,58 @@
+# Node / Dependencies
+node_modules/
+dist/
+build/
+.npm/
+
+# FolderMate local data & SQLite
+*.db
+*.db-wal
+*.db-shm
+foldermate.db
+foldermate.db-wal
+foldermate.db-shm
+.auth_token
+backups/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# C# / .NET build outputs
+bin/
+obj/
+*.userprefs
+*.pidb
+*.booproj
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary / Staging
+*.tmp
+*.part
+*.partial
+*.crswap
+.foldermate_*

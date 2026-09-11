@@ -1,0 +1,32 @@
+{
+  "name": "foldermate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Intelligent background file organization and version management system for Windows",
+  "author": "FolderMate Team",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:engine": "npm run dev --workspace=apps/engine",
+    "dev:desktop": "npm run dev --workspace=apps/desktop",
+    "build": "npm run build --workspaces --if-present",
+    "build:bridge": "dotnet build bridges/coreldraw-bridge -c Release",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:chaos": "vitest run --config vitest.chaos.config.ts",
+    "db:migrate": "npm run migrate --workspace=packages/database",
+    "db:seed": "npm run seed --workspace=packages/database",
+    "lint": "eslint . --ext .ts,.tsx",
+    "package:win": "npm run package --workspace=apps/desktop"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^20.17.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.3"
+  }
+}
