@@ -68,7 +68,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
     {
       id: "clients",
-      title: "Manage Clients & Projects",
+      title: "Open Client Library Folders",
       category: "Navigation",
       icon: <Users size={16} />,
       action: () => {
