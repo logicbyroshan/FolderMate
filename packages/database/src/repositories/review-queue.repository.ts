@@ -1,9 +1,10 @@
-import { Database as DatabaseType } from "better-sqlite3";
 import crypto from "crypto";
+import path from "path";
 import { ReviewQueueItemDTO, ReviewQueueStatus } from "@foldermate/shared";
+import { IDatabase } from "../connection.js";
 
 export class ReviewQueueRepository {
-  constructor(private db: DatabaseType) {}
+  constructor(private db: IDatabase) {}
 
   public create(item: Omit<ReviewQueueItemDTO, "id" | "createdAt" | "resolvedAt"> & { id?: string }): ReviewQueueItemDTO {
     const id = item.id || crypto.randomUUID();
@@ -15,7 +16,7 @@ export class ReviewQueueRepository {
         id, file_id, original_path, proposed_client_id, proposed_project_id,
         proposed_year, proposed_version, proposed_target_path, confidence_score,
         reasons_json, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `);
 
     stmt.run(
@@ -42,7 +43,7 @@ export class ReviewQueueRepository {
       FROM review_queue rq
       LEFT JOIN clients c ON rq.proposed_client_id = c.id
       LEFT JOIN projects p ON rq.proposed_project_id = p.id
-      WHERE rq.id = ?
+      WHERE rq.id = ?;
     `;
     const row = this.db.prepare(query).get(id) as any;
     if (!row) return null;
@@ -56,7 +57,7 @@ export class ReviewQueueRepository {
       LEFT JOIN clients c ON rq.proposed_client_id = c.id
       LEFT JOIN projects p ON rq.proposed_project_id = p.id
       WHERE rq.status = 'pending'
-      ORDER BY rq.created_at DESC
+      ORDER BY rq.created_at DESC;
     `;
     const rows = this.db.prepare(query).all() as any[];
     return rows.map((r) => this.mapRow(r));
@@ -64,7 +65,7 @@ export class ReviewQueueRepository {
 
   public resolve(id: string, status: ReviewQueueStatus = "resolved"): boolean {
     const now = new Date().toISOString();
-    const result = this.db.prepare("UPDATE review_queue SET status = ?, resolved_at = ? WHERE id = ?").run(status, now, id);
+    const result = this.db.prepare("UPDATE review_queue SET status = ?, resolved_at = ? WHERE id = ?;").run(status, now, id);
     return result.changes > 0;
   }
 
@@ -76,7 +77,6 @@ export class ReviewQueueRepository {
       reasons = [];
     }
 
-    const path = require("path");
     const originalName = path.basename(row.original_path);
 
     return {
@@ -88,10 +88,10 @@ export class ReviewQueueRepository {
       proposedClientName: row.client_name || null,
       proposedProjectId: row.proposed_project_id,
       proposedProjectName: row.project_name || null,
-      proposedYear: row.proposed_year,
-      proposedVersion: row.proposed_version,
+      proposedYear: row.proposed_year ? Number(row.proposed_year) : null,
+      proposedVersion: Number(row.proposed_version),
       proposedTargetPath: row.proposed_target_path,
-      confidenceScore: row.confidence_score,
+      confidenceScore: Number(row.confidence_score),
       reasons,
       status: row.status as ReviewQueueStatus,
       createdAt: row.created_at,

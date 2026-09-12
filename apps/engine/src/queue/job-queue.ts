@@ -16,12 +16,13 @@ export class JobQueue extends EventEmitter {
   private queue: QueueJob[] = [];
   private activeJobs: Set<string> = new Set();
   private handlers: Map<string, JobHandler> = new Map();
-  private isProcessing: boolean = false;
   private concurrency: number;
+  private baseBackoffMs: number;
 
-  constructor(concurrency: number = 4) {
+  constructor(concurrency: number = 4, baseBackoffMs: number = 200) {
     super();
     this.concurrency = concurrency;
+    this.baseBackoffMs = baseBackoffMs;
   }
 
   public registerHandler<T, R>(type: string, handler: JobHandler<T, R>): void {
@@ -86,7 +87,7 @@ export class JobQueue extends EventEmitter {
 
       if (job.retries < job.maxRetries) {
         job.retries++;
-        const backoffMs = Math.min(1000 * Math.pow(2, job.retries), 10000);
+        const backoffMs = Math.min(this.baseBackoffMs * Math.pow(2, job.retries - 1), 10000);
         setTimeout(() => {
           this.queue.unshift(job);
           this.processNext();

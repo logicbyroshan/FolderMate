@@ -1,8 +1,8 @@
-import { Database as DatabaseType } from "better-sqlite3";
 import { SearchResultItemDTO } from "@foldermate/shared";
+import { IDatabase } from "../connection.js";
 
 export class SearchRepository {
-  constructor(private db: DatabaseType) {}
+  constructor(private db: IDatabase) {}
 
   public search(query: string, limit: number = 25): SearchResultItemDTO[] {
     if (!query || query.trim().length === 0) return [];
@@ -38,7 +38,7 @@ export class SearchRepository {
       LEFT JOIN categories cat ON f.category_id = cat.id
       WHERE files_fts MATCH ?
       ORDER BY rank
-      LIMIT ?
+      LIMIT ?;
     `;
 
     try {
@@ -50,12 +50,12 @@ export class SearchRepository {
         clientName: r.client_name || undefined,
         projectName: r.project_name || undefined,
         categoryName: r.category_name || undefined,
-        year: r.year || undefined,
-        version: r.version,
+        year: r.year ? Number(r.year) : undefined,
+        version: Number(r.version),
         path: r.path,
         extension: r.extension,
-        sizeBytes: r.size_bytes,
-        rank: r.rank,
+        sizeBytes: Number(r.size_bytes),
+        rank: Number(r.rank),
       }));
     } catch (err) {
       console.warn("[SearchRepository] FTS5 search query error:", err);

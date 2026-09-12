@@ -1,9 +1,9 @@
-import { Database as DatabaseType } from "better-sqlite3";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { IDatabase } from "../connection.js";
 
-export function runMigrations(db: DatabaseType, customMigrationsDir?: string): string[] {
+export function runMigrations(db: IDatabase, customMigrationsDir?: string): string[] {
   // Ensure schema_migrations exists
   db.exec(`
     CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -12,12 +12,11 @@ export function runMigrations(db: DatabaseType, customMigrationsDir?: string): s
     );
   `);
 
-  const appliedRows = db.prepare("SELECT id FROM schema_migrations").all() as { id: string }[];
+  const appliedRows = db.prepare("SELECT id FROM schema_migrations;").all() as { id: string }[];
   const appliedSet = new Set(appliedRows.map((r) => r.id));
 
   let migrationsDir = customMigrationsDir;
   if (!migrationsDir) {
-    // Resolve relative to current module or project
     try {
       const currentDir = path.dirname(fileURLToPath(import.meta.url));
       migrationsDir = currentDir;
@@ -27,8 +26,7 @@ export function runMigrations(db: DatabaseType, customMigrationsDir?: string): s
   }
 
   if (!fs.existsSync(migrationsDir)) {
-    // Fallback search
-    migrationsDir = path.join(__dirname, "migrations");
+    migrationsDir = path.join(process.cwd(), "packages", "database", "src", "migrations");
   }
 
   const appliedNow: string[] = [];
@@ -46,7 +44,7 @@ export function runMigrations(db: DatabaseType, customMigrationsDir?: string): s
 
         const tx = db.transaction(() => {
           db.exec(sql);
-          db.prepare("INSERT INTO schema_migrations (id) VALUES (?)").run(file);
+          db.prepare("INSERT INTO schema_migrations (id) VALUES (?);").run(file);
         });
 
         tx();

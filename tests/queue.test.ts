@@ -3,7 +3,7 @@ import { JobQueue } from "../apps/engine/src/queue/job-queue.js";
 
 describe("JobQueue Priority & State Machine", () => {
   it("should process jobs in priority order", async () => {
-    const queue = new JobQueue(1); // Serial execution to verify order
+    const queue = new JobQueue(1, 50); // Serial execution to verify order
     const executionOrder: string[] = [];
 
     queue.registerHandler("TEST_JOB", async (job) => {
@@ -27,7 +27,7 @@ describe("JobQueue Priority & State Machine", () => {
   });
 
   it("should retry failed jobs up to maxRetries", async () => {
-    const queue = new JobQueue(2);
+    const queue = new JobQueue(2, 50); // Fast backoff (50ms, 100ms) for testing
     let attempts = 0;
 
     queue.registerHandler("FAILING_JOB", async () => {
@@ -41,7 +41,7 @@ describe("JobQueue Priority & State Machine", () => {
     queue.enqueue("FAILING_JOB", {}, 5, 3);
 
     // Wait for retries
-    await new Promise((r) => setTimeout(r, 4000));
+    await new Promise((r) => setTimeout(r, 500));
 
     expect(attempts).toBe(3);
   });

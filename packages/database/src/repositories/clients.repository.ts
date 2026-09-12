@@ -1,9 +1,9 @@
-import { Database as DatabaseType } from "better-sqlite3";
 import crypto from "crypto";
 import { ClientDTO } from "@foldermate/shared";
+import { IDatabase } from "../connection.js";
 
 export class ClientsRepository {
-  constructor(private db: DatabaseType) {}
+  constructor(private db: IDatabase) {}
 
   public create(client: Omit<ClientDTO, "id" | "createdAt" | "updatedAt"> & { id?: string }): ClientDTO {
     const id = client.id || crypto.randomUUID();
@@ -12,7 +12,7 @@ export class ClientsRepository {
 
     const stmt = this.db.prepare(`
       INSERT INTO clients (id, name, code, aliases_json, notes, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     `);
 
     stmt.run(
@@ -30,19 +30,21 @@ export class ClientsRepository {
   }
 
   public getById(id: string): ClientDTO | null {
-    const row = this.db.prepare("SELECT * FROM clients WHERE id = ?").get(id) as any;
+    const row = this.db.prepare("SELECT * FROM clients WHERE id = ?;").get(id) as any;
     if (!row) return null;
     return this.mapRow(row);
   }
 
   public getByName(name: string): ClientDTO | null {
-    const row = this.db.prepare("SELECT * FROM clients WHERE name = ? COLLATE NOCASE").get(name) as any;
+    const row = this.db.prepare("SELECT * FROM clients WHERE name = ? COLLATE NOCASE;").get(name) as any;
     if (!row) return null;
     return this.mapRow(row);
   }
 
   public list(activeOnly: boolean = true): ClientDTO[] {
-    const sql = activeOnly ? "SELECT * FROM clients WHERE is_active = 1 ORDER BY name ASC" : "SELECT * FROM clients ORDER BY name ASC";
+    const sql = activeOnly
+      ? "SELECT * FROM clients WHERE is_active = 1 ORDER BY name ASC;"
+      : "SELECT * FROM clients ORDER BY name ASC;";
     const rows = this.db.prepare(sql).all() as any[];
     return rows.map((r) => this.mapRow(r));
   }
@@ -55,7 +57,7 @@ export class ClientsRepository {
     if (!client.aliases.includes(trimmed)) {
       client.aliases.push(trimmed);
       const now = new Date().toISOString();
-      this.db.prepare("UPDATE clients SET aliases_json = ?, updated_at = ? WHERE id = ?").run(
+      this.db.prepare("UPDATE clients SET aliases_json = ?, updated_at = ? WHERE id = ?;").run(
         JSON.stringify(client.aliases),
         now,
         clientId

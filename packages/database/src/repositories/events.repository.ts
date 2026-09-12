@@ -1,9 +1,9 @@
-import { Database as DatabaseType } from "better-sqlite3";
 import crypto from "crypto";
 import { EventType, FileEventDTO } from "@foldermate/shared";
+import { IDatabase } from "../connection.js";
 
 export class EventsRepository {
-  constructor(private db: DatabaseType) {}
+  constructor(private db: IDatabase) {}
 
   public record(event: {
     fileId?: string | null;
@@ -21,7 +21,7 @@ export class EventsRepository {
       INSERT INTO file_events (
         id, file_id, event_type, old_state_json, new_state_json, details,
         duration_ms, error_message, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     `);
 
     stmt.run(
@@ -50,12 +50,12 @@ export class EventsRepository {
   }
 
   public listByFile(fileId: string): FileEventDTO[] {
-    const rows = this.db.prepare("SELECT * FROM file_events WHERE file_id = ? ORDER BY created_at DESC").all(fileId) as any[];
+    const rows = this.db.prepare("SELECT * FROM file_events WHERE file_id = ? ORDER BY created_at DESC;").all(fileId) as any[];
     return rows.map((r) => this.mapRow(r));
   }
 
   public listRecent(limit: number = 50): FileEventDTO[] {
-    const rows = this.db.prepare("SELECT * FROM file_events ORDER BY created_at DESC LIMIT ?").all(limit) as any[];
+    const rows = this.db.prepare("SELECT * FROM file_events ORDER BY created_at DESC LIMIT ?;").all(limit) as any[];
     return rows.map((r) => this.mapRow(r));
   }
 
@@ -76,7 +76,7 @@ export class EventsRepository {
       oldState,
       newState,
       details: row.details,
-      durationMs: row.duration_ms,
+      durationMs: row.duration_ms ? Number(row.duration_ms) : null,
       errorMessage: row.error_message,
       createdAt: row.created_at,
     };
