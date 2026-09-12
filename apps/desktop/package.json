@@ -1,0 +1,55 @@
+{
+  "name": "@foldermate/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/main/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build:main": "esbuild src/main/index.ts --bundle --platform=node --target=node20 --outfile=dist/main/index.js --external:electron",
+    "build:preload": "esbuild src/preload/index.ts --bundle --platform=node --target=node20 --outfile=dist/preload/index.js --external:electron",
+    "build:renderer": "vite build",
+    "build": "tsc -b && npm run build:main && npm run build:preload && npm run build:renderer",
+    "package": "npm run build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.foldermate.desktop",
+    "productName": "FolderMate",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FolderMate"
+    }
+  },
+  "dependencies": {
+    "@foldermate/config": "*",
+    "@foldermate/shared": "*",
+    "lucide-react": "^0.453.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
