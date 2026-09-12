@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0-windows;net8.0-windows</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64;AnyCPU</Platforms>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <RollForward>Major</RollForward>
+    <AssemblyTitle>FolderMate CorelDRAW Bridge</AssemblyTitle>
+    <Product>FolderMate</Product>
+    <Copyright>Copyright © FolderMate 2026</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
