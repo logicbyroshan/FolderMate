@@ -7,8 +7,8 @@ import {
   Sliders,
   Settings,
   FolderSync,
-  Activity,
 } from "lucide-react";
+import { Badge } from "./ui/Badge.js";
 
 export type NavView = "dashboard" | "search" | "review" | "clients" | "rules" | "settings";
 
@@ -30,49 +30,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: "search", label: "Search Files", icon: Search },
     { id: "review", label: "Review Queue", icon: Inbox, badge: pendingReviewCount },
     { id: "clients", label: "Clients & Projects", icon: Users },
-    { id: "rules", label: "Rules & Templates", icon: Sliders },
+    { id: "rules", label: "Rules & Folders", icon: Sliders },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
   return (
-    <aside style={{
-      width: "240px",
-      minWidth: "240px",
-      height: "100vh",
-      backgroundColor: "var(--bg-secondary)",
-      borderRight: "1px solid var(--border-subtle)",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      padding: "20px 16px",
-    }}>
+    <aside
+      style={{
+        width: 230,
+        minWidth: 230,
+        height: "100vh",
+        backgroundColor: "var(--bg-surface)",
+        borderRight: "1px solid var(--border-subtle)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "20px 14px",
+      }}
+    >
       <div>
         {/* Brand Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 8px 24px 8px" }}>
-          <div style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 16px rgba(99, 102, 241, 0.4)",
-          }}>
-            <FolderSync size={20} color="#ffffff" />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 8px 24px 8px" }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: "var(--radius-md)",
+              background: "linear-gradient(135deg, #f59e0b, #d97706)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 16px rgba(245, 158, 11, 0.35)",
+            }}
+          >
+            <FolderSync size={18} color="#0f172a" strokeWidth={2.5} />
           </div>
           <div>
-            <h1 style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "-0.3px", color: "#f8fafc" }}>
+            <h1 style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.2px", color: "var(--text-primary)" }}>
               FolderMate
             </h1>
-            <p style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" }}>
-              Automated Organizer
+            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
+              Background Organizer
             </p>
           </div>
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
@@ -85,35 +89,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "10px 12px",
-                  borderRadius: "8px",
+                  padding: "9px 12px",
+                  borderRadius: "var(--radius-md)",
                   border: "none",
                   cursor: "pointer",
-                  backgroundColor: isActive ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                  color: isActive ? "#818cf8" : "var(--text-secondary)",
-                  fontWeight: isActive ? "600" : "500",
-                  fontSize: "13px",
-                  transition: "all 0.15s ease",
+                  backgroundColor: isActive ? "var(--accent-amber-subtle)" : "transparent",
+                  color: isActive ? "var(--accent-amber-text)" : "var(--text-secondary)",
+                  fontWeight: isActive ? 600 : 500,
+                  fontSize: 13,
+                  transition: "all 0.12s ease-in-out",
                   textAlign: "left",
+                  outline: "none",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.backgroundColor = "transparent";
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Icon size={18} color={isActive ? "#818cf8" : "currentColor"} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Icon size={17} color={isActive ? "var(--accent-amber)" : "currentColor"} />
                   <span>{item.label}</span>
                 </div>
 
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span style={{
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    padding: "2px 7px",
-                    borderRadius: "9999px",
-                    backgroundColor: "#ef4444",
-                    color: "#ffffff",
-                    boxShadow: "0 0 8px rgba(239, 68, 68, 0.5)",
-                  }}>
+                  <Badge variant="amber" size="sm">
                     {item.badge}
-                  </span>
+                  </Badge>
                 )}
               </button>
             );
@@ -122,20 +125,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Engine Daemon Status */}
-      <div className="glass-panel" style={{ padding: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{
-          width: "8px",
-          height: "8px",
-          borderRadius: "50%",
-          backgroundColor: engineConnected ? "#10b981" : "#ef4444",
-          boxShadow: engineConnected ? "0 0 10px #10b981" : "0 0 10px #ef4444",
-        }} />
+      <div
+        className="glass-panel"
+        style={{
+          padding: "10px 12px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          backgroundColor: "var(--bg-elevated)",
+        }}
+      >
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            backgroundColor: engineConnected ? "var(--status-success)" : "var(--status-danger)",
+            boxShadow: engineConnected ? "0 0 8px var(--status-success)" : "0 0 8px var(--status-danger)",
+          }}
+        />
         <div>
-          <div style={{ fontSize: "11px", fontWeight: "600", color: "#f8fafc" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-primary)" }}>
             {engineConnected ? "Daemon Active" : "Daemon Offline"}
           </div>
-          <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
-            Named Pipe IPC Connected
+          <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+            Win32 Named Pipe
           </div>
         </div>
       </div>

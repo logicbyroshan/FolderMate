@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {
-  Inbox,
-  CheckCircle,
-  HelpCircle,
-  Sparkles,
-  ArrowRight,
-  ShieldAlert,
-  Plus,
-} from "lucide-react";
+import { CheckCircle, ArrowRight, FileQuestion } from "lucide-react";
+import { Card } from "../components/ui/Card.js";
+import { Badge } from "../components/ui/Badge.js";
+import { Button } from "../components/ui/Button.js";
+import { Select } from "../components/ui/Select.js";
+import { EmptyState } from "../components/ui/EmptyState.js";
+import { useToast } from "../components/ui/Toast.js";
 
 export const ReviewQueue: React.FC = () => {
+  const { showToast } = useToast();
   const [items, setItems] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
@@ -30,7 +29,6 @@ export const ReviewQueue: React.FC = () => {
         const projectsRes = await (window as any).foldermate.call("projects.list");
         setProjects(projectsRes || []);
 
-        // Pre-populate selections from suggestions
         const cMap: Record<string, string> = {};
         const pMap: Record<string, string> = {};
         const lMap: Record<string, boolean> = {};
@@ -59,12 +57,12 @@ export const ReviewQueue: React.FC = () => {
     const projectId = selectedProjectMap[item.id] || item.proposedProjectId;
 
     if (!clientId) {
-      alert("Please select or assign a client.");
+      showToast("Please select a target client", "warning");
       return;
     }
 
     if (!projectId) {
-      alert("Please select or assign a project.");
+      showToast("Please select a target project", "warning");
       return;
     }
 
@@ -80,106 +78,96 @@ export const ReviewQueue: React.FC = () => {
           learnAlias: learnAliasMap[item.id] ?? true,
         });
 
+        showToast(`Organized ${item.originalName} successfully`, "success");
         loadData();
       }
     } catch (err: any) {
-      alert(`Resolution failed: ${err.message}`);
+      showToast(`Resolution failed: ${err.message}`, "error");
     } finally {
       setIsResolving(null);
     }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Header */}
-      <div className="glass-panel" style={{ padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Card style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#f8fafc" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
             Review Queue
           </h2>
-          <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
-            Files requiring human confirmation before final organization
+          <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+            Files requiring confirmation before autonomous organization
           </p>
         </div>
 
-        <div className="badge-glow-warning" style={{
-          padding: "4px 12px",
-          borderRadius: "9999px",
-          fontSize: "12px",
-          fontWeight: "700",
-        }}>
+        <Badge variant={items.length > 0 ? "amber" : "success"} dot size="md">
           {items.length} Pending
-        </div>
-      </div>
+        </Badge>
+      </Card>
 
       {/* Items List */}
       {items.length === 0 ? (
-        <div className="glass-panel" style={{ padding: "60px 20px", textAlign: "center" }}>
-          <div style={{
-            width: "56px",
-            height: "56px",
-            borderRadius: "50%",
-            backgroundColor: "rgba(16, 185, 129, 0.15)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 16px auto",
-          }}>
-            <CheckCircle size={28} color="#34d399" />
-          </div>
-          <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#f8fafc", marginBottom: "4px" }}>
-            Review Queue is Empty!
-          </h3>
-          <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-            All incoming files are being organized with 100% confidence.
-          </p>
-        </div>
+        <Card style={{ padding: "40px 20px" }}>
+          <EmptyState
+            icon={<CheckCircle size={28} color="var(--status-success)" />}
+            title="Review Queue is Empty!"
+            description="All incoming files are matching client & project rules with high confidence."
+          />
+        </Card>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {items.map((item) => {
             const confPct = Math.round(item.confidenceScore * 100);
 
             return (
-              <div key={item.id} className="glass-panel" style={{ padding: "24px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
-                  <div>
-                    <span className="mono-font" style={{ fontSize: "15px", fontWeight: "700", color: "#f8fafc" }}>
-                      {item.originalName}
-                    </span>
-                    <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
-                      Detected in Inbox • {item.originalPath}
+              <Card key={item.id} style={{ padding: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "var(--radius-sm)",
+                        backgroundColor: "var(--accent-amber-subtle)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <FileQuestion size={18} color="var(--accent-amber)" />
+                    </div>
+                    <div>
+                      <span className="mono-font" style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+                        {item.originalName}
+                      </span>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                        Detected in Inbox • {item.originalPath}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Confidence Score Pill */}
-                  <div style={{
-                    padding: "4px 12px",
-                    borderRadius: "9999px",
-                    fontSize: "12px",
-                    fontWeight: "700",
-                    backgroundColor: confPct >= 70 ? "rgba(245, 158, 11, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                    color: confPct >= 70 ? "#fbbf24" : "#f87171",
-                    border: "1px solid",
-                    borderColor: confPct >= 70 ? "rgba(245, 158, 11, 0.3)" : "rgba(239, 68, 68, 0.3)",
-                  }}>
+                  <Badge variant={confPct >= 70 ? "amber" : "danger"} size="md">
                     {confPct}% Confidence
-                  </div>
+                  </Badge>
                 </div>
 
                 {/* Reasons Breakdown */}
                 {item.reasons && item.reasons.length > 0 && (
-                  <div style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.02)",
-                    borderRadius: "8px",
-                    padding: "10px 14px",
-                    marginBottom: "16px",
-                    border: "1px solid var(--border-subtle)",
-                  }}>
-                    <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  <div
+                    style={{
+                      backgroundColor: "var(--bg-canvas)",
+                      borderRadius: "var(--radius-md)",
+                      padding: "8px 12px",
+                      marginBottom: 14,
+                      border: "1px solid var(--border-subtle)",
+                    }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 3 }}>
                       Inference Rationale:
                     </div>
                     {item.reasons.map((reason: string, rIdx: number) => (
-                      <div key={rIdx} style={{ fontSize: "11px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div key={rIdx} style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
                         <span>•</span> {reason}
                       </div>
                     ))}
@@ -187,103 +175,60 @@ export const ReviewQueue: React.FC = () => {
                 )}
 
                 {/* Proposal Editor & Action Bar */}
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 120px auto",
-                  gap: "12px",
-                  alignItems: "center",
-                }}>
-                  <div>
-                    <label style={{ fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "4px", fontWeight: "600" }}>
-                      Assign Client:
-                    </label>
-                    <select
-                      value={selectedClientMap[item.id] || ""}
-                      onChange={(e) => setSelectedClientMap({ ...selectedClientMap, [item.id]: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "8px 12px",
-                        backgroundColor: "rgba(255, 255, 255, 0.06)",
-                        border: "1px solid var(--border-subtle)",
-                        borderRadius: "6px",
-                        color: "#f8fafc",
-                        fontSize: "12px",
-                        outline: "none",
-                      }}
-                    >
-                      <option value="">-- Select Client --</option>
-                      {clients.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} ({c.code})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 120px auto",
+                    gap: 12,
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <Select
+                    label="Assign Client:"
+                    value={selectedClientMap[item.id] || ""}
+                    onChange={(val) => setSelectedClientMap({ ...selectedClientMap, [item.id]: val })}
+                    options={[
+                      { value: "", label: "-- Select Client --" },
+                      ...clients.map((c) => ({ value: c.id, label: `${c.name} (${c.code})` })),
+                    ]}
+                  />
 
-                  <div>
-                    <label style={{ fontSize: "11px", color: "var(--text-muted)", display: "block", marginBottom: "4px", fontWeight: "600" }}>
-                      Assign Project:
-                    </label>
-                    <select
-                      value={selectedProjectMap[item.id] || ""}
-                      onChange={(e) => setSelectedProjectMap({ ...selectedProjectMap, [item.id]: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "8px 12px",
-                        backgroundColor: "rgba(255, 255, 255, 0.06)",
-                        border: "1px solid var(--border-subtle)",
-                        borderRadius: "6px",
-                        color: "#f8fafc",
-                        fontSize: "12px",
-                        outline: "none",
-                      }}
-                    >
-                      <option value="">-- Select Project --</option>
-                      {projects.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.year})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <Select
+                    label="Assign Project:"
+                    value={selectedProjectMap[item.id] || ""}
+                    onChange={(val) => setSelectedProjectMap({ ...selectedProjectMap, [item.id]: val })}
+                    options={[
+                      { value: "", label: "-- Select Project --" },
+                      ...projects.map((p) => ({ value: p.id, label: `${p.name} (${p.year})` })),
+                    ]}
+                  />
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", paddingTop: "18px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, paddingBottom: 8 }}>
                     <input
                       type="checkbox"
                       id={`learn_${item.id}`}
                       checked={learnAliasMap[item.id] ?? true}
                       onChange={(e) => setLearnAliasMap({ ...learnAliasMap, [item.id]: e.target.checked })}
+                      style={{ accentColor: "var(--accent-amber)" }}
                     />
-                    <label htmlFor={`learn_${item.id}`} style={{ fontSize: "11px", color: "var(--text-secondary)", cursor: "pointer" }}>
+                    <label htmlFor={`learn_${item.id}`} style={{ fontSize: 11, color: "var(--text-secondary)", cursor: "pointer" }}>
                       Learn Alias
                     </label>
                   </div>
 
-                  <div style={{ paddingTop: "18px" }}>
-                    <button
+                  <div>
+                    <Button
+                      variant="primary"
+                      size="md"
+                      isLoading={isResolving === item.id}
+                      rightIcon={<ArrowRight size={14} />}
                       onClick={() => handleResolve(item)}
-                      disabled={isResolving === item.id}
-                      style={{
-                        padding: "8px 18px",
-                        backgroundColor: "#4f46e5",
-                        color: "#ffffff",
-                        border: "none",
-                        borderRadius: "6px",
-                        fontWeight: "600",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        boxShadow: "0 0 12px rgba(79, 70, 229, 0.4)",
-                      }}
                     >
-                      <span>Organize Now</span>
-                      <ArrowRight size={14} />
-                    </button>
+                      Organize Now
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

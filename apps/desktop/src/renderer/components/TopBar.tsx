@@ -1,12 +1,14 @@
 import React from "react";
-import { Search, Play, FolderOpen, Bell } from "lucide-react";
+import { Search, Play, FolderOpen } from "lucide-react";
 import { CorelStatusWidget } from "./CorelStatusWidget.js";
+import { Button } from "./ui/Button.js";
 
 interface TopBarProps {
   onSearchFocus: () => void;
   onScanNow: () => void;
   onOpenInbox: () => void;
   onOpenStorage: () => void;
+  onOpenCommandPalette: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -14,108 +16,96 @@ export const TopBar: React.FC<TopBarProps> = ({
   onScanNow,
   onOpenInbox,
   onOpenStorage,
+  onOpenCommandPalette,
 }) => {
   return (
-    <header style={{
-      height: "56px",
-      borderBottom: "1px solid var(--border-subtle)",
-      backgroundColor: "rgba(15, 23, 42, 0.4)",
-      backdropFilter: "blur(12px)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "0 24px",
-      userSelect: "none",
-    }}>
+    <header
+      style={{
+        height: 56,
+        borderBottom: "1px solid var(--border-subtle)",
+        backgroundColor: "rgba(15, 23, 42, 0.6)",
+        backdropFilter: "blur(12px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 24px",
+        userSelect: "none",
+      }}
+    >
       {/* Search Bar Trigger */}
       <div
-        onClick={onSearchFocus}
+        onClick={onOpenCommandPalette}
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          backgroundColor: "rgba(255, 255, 255, 0.05)",
+          justifyContent: "space-between",
+          backgroundColor: "var(--bg-surface)",
           border: "1px solid var(--border-subtle)",
           padding: "6px 14px",
-          borderRadius: "8px",
+          borderRadius: "var(--radius-md)",
           cursor: "pointer",
-          width: "320px",
+          width: 320,
           color: "var(--text-muted)",
-          fontSize: "12px",
-          transition: "border-color 0.2s ease",
+          fontSize: 12,
+          transition: "border-color 0.15s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "var(--border-medium)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "var(--border-subtle)";
         }}
       >
-        <Search size={15} color="#64748b" />
-        <span>Search files, clients, versions (Ctrl+K)...</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Search size={14} color="var(--text-muted)" />
+          <span>Quick actions & search...</span>
+        </div>
+        <kbd
+          style={{
+            padding: "1px 5px",
+            fontSize: 10,
+            fontWeight: 600,
+            color: "var(--text-muted)",
+            backgroundColor: "var(--bg-elevated)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-sm)",
+          }}
+        >
+          Ctrl+K
+        </kbd>
       </div>
 
       {/* Center / Right Integrations & Action Buttons */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <CorelStatusWidget />
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <button
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Button
+            size="sm"
+            variant="amber"
+            leftIcon={<Play size={13} fill="currentColor" />}
             onClick={onScanNow}
-            title="Scan Inbox Now"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              padding: "6px 12px",
-              backgroundColor: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "6px",
-              color: "#f8fafc",
-              fontSize: "12px",
-              fontWeight: "600",
-              cursor: "pointer",
-            }}
           >
-            <Play size={13} fill="currentColor" color="#38bdf8" />
-            <span>Scan Inbox</span>
-          </button>
+            Scan Inbox
+          </Button>
 
-          <button
+          <Button
+            size="sm"
+            variant="secondary"
+            leftIcon={<FolderOpen size={13} />}
             onClick={onOpenInbox}
-            title="Open Inbox Directory"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              padding: "6px 12px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "6px",
-              color: "var(--text-secondary)",
-              fontSize: "12px",
-              fontWeight: "500",
-              cursor: "pointer",
-            }}
           >
-            <FolderOpen size={13} color="#94a3b8" />
-            <span>Inbox</span>
-          </button>
+            Inbox
+          </Button>
 
-          <button
+          <Button
+            size="sm"
+            variant="secondary"
+            leftIcon={<FolderOpen size={13} />}
             onClick={onOpenStorage}
-            title="Open Organized Storage Root"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              padding: "6px 12px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "6px",
-              color: "var(--text-secondary)",
-              fontSize: "12px",
-              fontWeight: "500",
-              cursor: "pointer",
-            }}
           >
-            <FolderOpen size={13} color="#94a3b8" />
-            <span>Storage</span>
-          </button>
+            Storage
+          </Button>
         </div>
       </div>
     </header>

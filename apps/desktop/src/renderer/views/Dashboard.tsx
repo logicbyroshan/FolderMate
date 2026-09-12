@@ -5,11 +5,15 @@ import {
   Users,
   FolderTree,
   ExternalLink,
-  Clock,
   ShieldCheck,
-  CheckCircle,
   FileCode,
+  FolderOpen,
 } from "lucide-react";
+import { Card } from "../components/ui/Card.js";
+import { Badge } from "../components/ui/Badge.js";
+import { Button } from "../components/ui/Button.js";
+import { IconButton } from "../components/ui/IconButton.js";
+import { EmptyState } from "../components/ui/EmptyState.js";
 
 interface DashboardProps {
   onNavigate: (view: any) => void;
@@ -58,138 +62,127 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       title: "Organized Files",
       value: files.length,
       icon: FileCheck2,
-      color: "#10b981",
-      bgColor: "rgba(16, 185, 129, 0.12)",
+      variant: "success" as const,
+      color: "var(--status-success)",
+      bgColor: "var(--status-success-bg)",
     },
     {
       title: "Needs Review",
       value: status?.pendingReviewCount || 0,
       icon: Inbox,
-      color: status?.pendingReviewCount > 0 ? "#ef4444" : "#f59e0b",
-      bgColor: status?.pendingReviewCount > 0 ? "rgba(239, 68, 68, 0.15)" : "rgba(245, 158, 11, 0.12)",
+      variant: (status?.pendingReviewCount > 0 ? "amber" : "neutral") as "amber" | "neutral",
+      color: status?.pendingReviewCount > 0 ? "var(--accent-amber)" : "var(--text-muted)",
+      bgColor: status?.pendingReviewCount > 0 ? "var(--accent-amber-subtle)" : "rgba(255,255,255,0.03)",
       onClick: () => onNavigate("review"),
     },
     {
       title: "Active Clients",
       value: clientsCount,
       icon: Users,
-      color: "#6366f1",
-      bgColor: "rgba(99, 102, 241, 0.12)",
+      variant: "info" as const,
+      color: "var(--status-info)",
+      bgColor: "var(--status-info-bg)",
       onClick: () => onNavigate("clients"),
     },
     {
       title: "Active Projects",
       value: projectsCount,
       icon: FolderTree,
-      color: "#8b5cf6",
-      bgColor: "rgba(139, 92, 246, 0.12)",
+      variant: "amber" as const,
+      color: "var(--accent-amber)",
+      bgColor: "var(--accent-amber-subtle)",
       onClick: () => onNavigate("clients"),
     },
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Welcome Banner */}
-      <div className="glass-panel" style={{
-        padding: "24px",
-        background: "linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}>
+      <Card
+        style={{
+          padding: 24,
+          background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.85))",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <div>
-          <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#f8fafc", marginBottom: "4px" }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>
             Workspace Engine Active
           </h2>
-          <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-            Watching Inbox <span className="mono-font" style={{ color: "#38bdf8" }}>{status?.inboxPath || "C:\\FolderMate\\Inbox"}</span>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            Watching Inbox <span className="mono-font" style={{ color: "var(--accent-amber-text)" }}>{status?.inboxPath || "C:\\FolderMate\\Inbox"}</span>
           </p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div className="badge-glow-success" style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 14px",
-            borderRadius: "9999px",
-            fontSize: "12px",
-            fontWeight: "600",
-          }}>
-            <ShieldCheck size={16} />
-            <span>Safe Mode: {status?.safeMode ? "Enabled (Archival Protection)" : "Direct"}</span>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Badge variant="success" dot size="md">
+            Safe Mode: {status?.safeMode ? "Enabled" : "Direct"}
+          </Badge>
         </div>
-      </div>
+      </Card>
 
       {/* Metric Tiles */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
-            <div
+            <Card
               key={i}
+              interactive={Boolean(card.onClick)}
               onClick={card.onClick}
-              className="glass-panel-interactive"
               style={{
-                padding: "20px",
-                cursor: card.onClick ? "pointer" : "default",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                padding: 20,
               }}
             >
               <div>
-                <div style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: "600", marginBottom: "6px" }}>
+                <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600, marginBottom: 4 }}>
                   {card.title}
                 </div>
-                <div style={{ fontSize: "28px", fontWeight: "800", color: "#f8fafc" }}>
+                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--text-primary)" }}>
                   {card.value}
                 </div>
               </div>
-              <div style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "12px",
-                backgroundColor: card.bgColor,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                <Icon size={24} color={card.color} />
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "var(--radius-md)",
+                  backgroundColor: card.bgColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon size={22} color={card.color} />
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
 
       {/* Recent Files Table */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <h3 style={{ fontSize: "15px", fontWeight: "700", color: "#f8fafc" }}>
+      <Card style={{ padding: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
             Recently Organized Files
           </h3>
-          <button
-            onClick={() => onNavigate("search")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#818cf8",
-              fontSize: "12px",
-              fontWeight: "600",
-              cursor: "pointer",
-            }}
-          >
+          <Button variant="ghost" size="sm" onClick={() => onNavigate("search")}>
             View All Files →
-          </button>
+          </Button>
         </div>
 
         {files.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)", fontSize: "13px" }}>
-            No files organized yet. Drop designs or PDFs into your configured Inbox!
-          </div>
+          <EmptyState
+            title="No files organized yet"
+            description="Drop CDR designs, PDFs, or documents into your Inbox folder to see them organized automatically!"
+          />
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {files.map((file) => (
               <div
                 key={file.id}
@@ -198,62 +191,52 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "12px 16px",
-                  borderRadius: "8px",
-                  backgroundColor: "rgba(255, 255, 255, 0.02)",
+                  borderRadius: "var(--radius-md)",
+                  backgroundColor: "var(--bg-canvas)",
                   border: "1px solid var(--border-subtle)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "8px",
-                    backgroundColor: "rgba(99, 102, 241, 0.15)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}>
-                    <FileCode size={18} color="#818cf8" />
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "var(--radius-sm)",
+                      backgroundColor: "var(--accent-amber-subtle)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <FileCode size={18} color="var(--accent-amber)" />
                   </div>
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#f8fafc" }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
                       {file.currentName}
                     </div>
-                    <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
                       From: {file.originalName} • {Math.round(file.sizeBytes / 1024)} KB
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <span className="badge-glow-primary" style={{
-                    padding: "3px 8px",
-                    borderRadius: "4px",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                  }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <Badge variant="amber" size="sm">
                     v{file.versionNumber}
-                  </span>
+                  </Badge>
 
-                  <button
+                  <IconButton
+                    icon={<ExternalLink size={15} />}
                     onClick={() => handleRevealFile(file.currentPath)}
-                    title="Reveal in Explorer"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "var(--text-secondary)",
-                      cursor: "pointer",
-                      padding: "4px",
-                    }}
-                  >
-                    <ExternalLink size={16} />
-                  </button>
+                    tooltip="Reveal in Explorer"
+                    size="sm"
+                  />
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 };

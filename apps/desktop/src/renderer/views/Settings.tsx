@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Settings as SettingsIcon, Save, Folder, Shield, Palette, HardDrive } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  Save,
+  Folder,
+  Shield,
+  Palette,
+  HardDrive,
+  CheckCircle2,
+  AlertCircle,
+  Layers,
+  Cpu,
+} from "lucide-react";
+import {
+  Button,
+  Input,
+  Select,
+  Card,
+  Badge,
+  useToast,
+} from "../components/ui/index.js";
 
 export const Settings: React.FC = () => {
   const [inboxPath, setInboxPath] = useState("C:\\FolderMate\\Inbox");
@@ -8,7 +27,8 @@ export const Settings: React.FC = () => {
   const [safeMode, setSafeMode] = useState(true);
   const [corelEnabled, setCorelEnabled] = useState(true);
   const [collisionPolicy, setCollisionPolicy] = useState("AUTO_INCREMENT");
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -22,12 +42,15 @@ export const Settings: React.FC = () => {
           if (cfg?.storage?.collisionPolicy) setCollisionPolicy(cfg.storage.collisionPolicy);
           if (cfg?.coreldraw?.enabled !== undefined) setCorelEnabled(cfg.coreldraw.enabled);
         }
-      } catch {}
+      } catch (err: any) {
+        console.error("Failed to load settings:", err);
+      }
     };
     loadConfig();
   }, []);
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
       if ((window as any).foldermate) {
         await (window as any).foldermate.call("settings.update", {
@@ -35,154 +58,208 @@ export const Settings: React.FC = () => {
           storage: { organizationRoot, archiveRoot, safeMode, collisionPolicy },
           coreldraw: { enabled: corelEnabled },
         });
-        setIsSaved(true);
-        setTimeout(() => setIsSaved(false), 3000);
+        showToast("System configuration updated and applied to background engine.", "success");
       }
     } catch (err: any) {
-      alert(`Failed to save settings: ${err.message}`);
+      showToast(err.message || "Failed to update configuration.", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-      {/* Header */}
-      <div className="glass-panel" style={{ padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 900 }}>
+      {/* Header bar */}
+      <Card
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: "var(--bg-surface-elevated)",
+        }}
+      >
         <div>
-          <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#f8fafc" }}>
-            Application Settings
-          </h2>
-          <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
-            Configure directory paths, background engine policies, and external integrations
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+            <SettingsIcon size={18} color="var(--accent-amber)" />
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+              System Configuration
+            </h2>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            Control directory boundaries, safety journals, version collision logic, and COM automation bridges.
           </p>
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          leftIcon={<Save size={14} />}
           onClick={handleSave}
-          style={{
-            padding: "8px 18px",
-            borderRadius: "6px",
-            backgroundColor: "#4f46e5",
-            color: "#ffffff",
-            border: "none",
-            fontSize: "12px",
-            fontWeight: "700",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-          }}
+          isLoading={isSaving}
         >
-          <Save size={14} />
-          <span>{isSaved ? "Saved!" : "Save Settings"}</span>
-        </button>
-      </div>
+          Save Configuration
+        </Button>
+      </Card>
 
-      {/* Directory Paths Card */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
-        <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#f8fafc", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-          <Folder size={16} color="#38bdf8" />
-          <span>Directory Paths</span>
-        </h3>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+      {/* Directory Paths Section */}
+      <Card style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 12 }}>
+          <Folder size={18} color="var(--accent-amber)" />
           <div>
-            <label style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "600", display: "block", marginBottom: "4px" }}>
-              WATCHED INBOX DIRECTORY:
-            </label>
-            <input
-              type="text"
-              value={inboxPath}
-              onChange={(e) => setInboxPath(e.target.value)}
-              className="mono-font"
-              style={{ width: "100%", padding: "8px 12px", backgroundColor: "rgba(255, 255, 255, 0.04)", border: "1px solid var(--border-subtle)", borderRadius: "6px", color: "#f8fafc", fontSize: "12px" }}
-            />
-          </div>
-
-          <div>
-            <label style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "600", display: "block", marginBottom: "4px" }}>
-              ORGANIZATION STORAGE ROOT:
-            </label>
-            <input
-              type="text"
-              value={organizationRoot}
-              onChange={(e) => setOrganizationRoot(e.target.value)}
-              className="mono-font"
-              style={{ width: "100%", padding: "8px 12px", backgroundColor: "rgba(255, 255, 255, 0.04)", border: "1px solid var(--border-subtle)", borderRadius: "6px", color: "#f8fafc", fontSize: "12px" }}
-            />
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+              Directory Boundaries
+            </h3>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+              Absolute Windows filesystem locations used by the background file watcher and organizer.
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* Safety & Collision Policies */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
-        <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#f8fafc", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-          <Shield size={16} color="#10b981" />
-          <span>Safety & Version Policies</span>
-        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <Input
+            label="WATCHED INBOX DIRECTORY"
+            value={inboxPath}
+            onChange={(e) => setInboxPath(e.target.value)}
+            className="mono-font"
+            placeholder="e.g. C:\FolderMate\Inbox"
+          />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Input
+            label="ORGANIZATION STORAGE ROOT (LIBRARY)"
+            value={organizationRoot}
+            onChange={(e) => setOrganizationRoot(e.target.value)}
+            className="mono-font"
+            placeholder="e.g. D:\Clients"
+          />
+
+          <Input
+            label="ARCHIVE STORAGE ROOT"
+            value={archiveRoot}
+            onChange={(e) => setArchiveRoot(e.target.value)}
+            className="mono-font"
+            placeholder="e.g. D:\Archive"
+          />
+        </div>
+      </Card>
+
+      {/* Safety & Version Policies */}
+      <Card style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 12 }}>
+          <Shield size={18} color="var(--status-success)" />
+          <div>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+              Safety & Version Collision Policies
+            </h3>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+              Protects against accidental overwrites and ensures non-destructive transactions.
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "12px 14px",
+              backgroundColor: "var(--bg-surface)",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
             <div>
-              <div style={{ fontSize: "13px", fontWeight: "600", color: "#f8fafc" }}>
-                Safe Mode (Archival Protection)
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 6 }}>
+                <span>Safe Mode (Archival Journal Protection)</span>
+                <Badge variant="success" size="sm">Recommended</Badge>
               </div>
-              <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                Move original files to Inbox/_Archived instead of immediate deletion
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                Moves original inbox files to <code className="mono-font" style={{ color: "var(--accent-amber)" }}>_Archived</code> staging rather than unrecoverable deletion.
               </div>
             </div>
             <input
               type="checkbox"
               checked={safeMode}
               onChange={(e) => setSafeMode(e.target.checked)}
-              style={{ width: "18px", height: "18px", accentColor: "#10b981", cursor: "pointer" }}
+              style={{ width: 18, height: 18, accentColor: "var(--accent-amber)", cursor: "pointer" }}
             />
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: "13px", fontWeight: "600", color: "#f8fafc" }}>
-                Collision Policy
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "12px 14px",
+              backgroundColor: "var(--bg-surface)",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
+            <div style={{ maxWidth: 450 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                Collision Resolution Strategy
               </div>
-              <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                Action when destination filename already exists
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                Determines action when a destination file already exists with matching name.
               </div>
             </div>
-            <select
-              value={collisionPolicy}
-              onChange={(e) => setCollisionPolicy(e.target.value)}
-              style={{ padding: "6px 12px", backgroundColor: "#0f172a", border: "1px solid var(--border-subtle)", borderRadius: "6px", color: "#f8fafc", fontSize: "12px" }}
-            >
-              <option value="AUTO_INCREMENT">Auto-Increment Version (v+1)</option>
-              <option value="PROMPT_REVIEW">Route to Review Queue</option>
-            </select>
+            <div style={{ width: 220 }}>
+              <Select
+                value={collisionPolicy}
+                onChange={(val) => setCollisionPolicy(val)}
+                options={[
+                  { label: "Auto-Increment (v+1)", value: "AUTO_INCREMENT" },
+                  { label: "Route to Review Queue", value: "PROMPT_REVIEW" },
+                  { label: "Overwrite Destination", value: "OVERWRITE" },
+                ]}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* CorelDRAW Integration */}
-      <div className="glass-panel" style={{ padding: "24px" }}>
-        <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#f8fafc", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-          <Palette size={16} color="#8b5cf6" />
-          <span>CorelDRAW Integration</span>
-        </h3>
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* CorelDRAW COM Automation */}
+      <Card style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 12 }}>
+          <Palette size={18} color="var(--accent-amber)" />
           <div>
-            <div style={{ fontSize: "13px", fontWeight: "600", color: "#f8fafc" }}>
-              Enable COM Automation Bridge
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+              CorelDRAW COM Bridge
+            </h3>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+              Automates active document detection, page counts, metadata extraction, and version exports.
+            </span>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 14px",
+            backgroundColor: "var(--bg-surface)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-subtle)",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 6 }}>
+              <span>Enable CorelDRAW Automation Adapter</span>
+              {corelEnabled && <Badge variant="amber" size="sm">Active</Badge>}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-              Allows live document detection, Save as New Version, and preview generation
+            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+              Communicates with running CorelDRAW instances via Windows COM interface without background polling.
             </div>
           </div>
           <input
             type="checkbox"
             checked={corelEnabled}
             onChange={(e) => setCorelEnabled(e.target.checked)}
-            style={{ width: "18px", height: "18px", accentColor: "#6366f1", cursor: "pointer" }}
+            style={{ width: 18, height: 18, accentColor: "var(--accent-amber)", cursor: "pointer" }}
           />
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
