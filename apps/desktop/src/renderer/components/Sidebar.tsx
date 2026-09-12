@@ -7,6 +7,7 @@ import {
   Sliders,
   Settings,
   FolderSync,
+  FolderTree,
 } from "lucide-react";
 import { Badge } from "./ui/Badge.js";
 
@@ -29,7 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "search", label: "Search Files", icon: Search },
     { id: "review", label: "Review Queue", icon: Inbox, badge: pendingReviewCount },
-    { id: "clients", label: "Clients & Projects", icon: Users },
+    { id: "clients", label: "Client Folders", icon: FolderTree },
     { id: "rules", label: "Rules & Folders", icon: Sliders },
     { id: "settings", label: "Settings", icon: Settings },
   ];

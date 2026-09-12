@@ -1,43 +1,55 @@
 import React, { useState, useEffect } from "react";
 import {
-  Users,
+  Folder,
+  FolderPlus,
+  FolderTree,
+  FolderOpen,
   Plus,
   Tag,
-  FolderTree,
-  Building,
-  Check,
-  Sparkles,
-  Folder,
   Calendar,
   Layers,
-  Search,
+  FileText,
+  ExternalLink,
+  ChevronRight,
+  HardDrive,
+  Sparkles,
+  ArrowLeft,
+  Check,
+  Search as SearchIcon,
 } from "lucide-react";
 import {
   Button,
+  IconButton,
   Input,
   SearchBar,
   Badge,
   Card,
   Modal,
   EmptyState,
+  FolderColorPicker,
   useToast,
 } from "../components/ui/index.js";
 
 export const Clients: React.FC = () => {
   const [clients, setClients] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [files, setFiles] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [clientSearch, setClientSearch] = useState("");
+  const [libraryRoot, setLibraryRoot] = useState("D:\\Clients");
   const { showToast } = useToast();
 
-  // New Client Modal
+  // New Client Folder Modal
   const [showNewClientModal, setShowNewClientModal] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [newClientCode, setNewClientCode] = useState("");
   const [newClientAliases, setNewClientAliases] = useState("");
+  const [newClientColor, setNewClientColor] = useState("Amber");
+  const [initialProjectName, setInitialProjectName] = useState("ID Card");
+  const [initialProjectYear, setInitialProjectYear] = useState(new Date().getFullYear());
   const [isCreatingClient, setIsCreatingClient] = useState(false);
 
-  // New Project Modal
+  // New Project Subfolder Modal
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectYear, setNewProjectYear] = useState(new Date().getFullYear());
@@ -47,18 +59,23 @@ export const Clients: React.FC = () => {
   const loadData = async () => {
     try {
       if ((window as any).foldermate) {
+        const cfg = await (window as any).foldermate.call("settings.get");
+        if (cfg?.storage?.organizationRoot) {
+          setLibraryRoot(cfg.storage.organizationRoot);
+        }
+
         const cRes = await (window as any).foldermate.call("clients.list");
         setClients(cRes || []);
-        if (cRes?.length > 0 && !selectedClientId) {
-          setSelectedClientId(cRes[0].id);
-        }
 
         const pRes = await (window as any).foldermate.call("projects.list");
         setProjects(pRes || []);
+
+        const fRes = await (window as any).foldermate.call("files.list", { limit: 100 });
+        setFiles(fRes?.items || []);
       }
     } catch (err: any) {
-      console.error("Failed to load clients/projects:", err);
-      showToast(err.message || "Failed to load clients and projects", "error");
+      console.error("Failed to load client library folders:", err);
+      showToast(err.message || "Failed to load client library folders", "error");
     }
   };
 
@@ -66,7 +83,7 @@ export const Clients: React.FC = () => {
     loadData();
   }, []);
 
-  const handleCreateClient = async (e: React.FormEvent) => {
+  const handleCreateClientFolder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClientName.trim()) return;
 
@@ -82,6 +99,10 @@ export const Clients: React.FC = () => {
           name: newClientName.trim(),
           code: newClientCode.trim() || newClientName.replace(/\s+/g, "").toUpperCase().slice(0, 6),
           aliases,
+          color: newClientColor,
+          initialProjectName: initialProjectName.trim(),
+          initialProjectYear: Number(initialProjectYear),
+          initialProjectCategory: initialProjectName.trim(),
           isActive: true,
         });
 
@@ -89,18 +110,18 @@ export const Clients: React.FC = () => {
         setNewClientCode("");
         setNewClientAliases("");
         setShowNewClientModal(false);
-        showToast(`Successfully registered client ${created.name}`, "success");
+        showToast(`Created client folder "${created.name}" in Library`, "success");
         await loadData();
         setSelectedClientId(created.id);
       }
     } catch (err: any) {
-      showToast(err.message || "Failed to create client", "error");
+      showToast(err.message || "Failed to create client folder", "error");
     } finally {
       setIsCreatingClient(false);
     }
   };
 
-  const handleCreateProject = async (e: React.FormEvent) => {
+  const handleCreateProjectSubfolder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClientId || !newProjectName.trim()) return;
 
@@ -116,13 +137,47 @@ export const Clients: React.FC = () => {
 
         setNewProjectName("");
         setShowNewProjectModal(false);
-        showToast(`Created project ${newProjectName} for ${activeClient?.name}`, "success");
+        showToast(`Created project subfolder "${newProjectName}" on disk`, "success");
         await loadData();
       }
     } catch (err: any) {
-      showToast(err.message || "Failed to create project", "error");
+      showToast(err.message || "Failed to create project folder", "error");
     } finally {
       setIsCreatingProject(false);
+    }
+  };
+
+  const handleOpenFolder = async (folderPath: string) => {
+    try {
+      if ((window as any).foldermate) {
+        await (window as any).foldermate.openPath(folderPath);
+      }
+    } catch (err: any) {
+      showToast(`Cannot open path: ${err.message}`, "error");
+    }
+  };
+
+  const handleRevealFile = async (filePath: string) => {
+    try {
+      if ((window as any).foldermate) {
+        await (window as any).foldermate.showItemInFolder(filePath);
+      }
+    } catch (err: any) {
+      showToast(`Cannot reveal file: ${err.message}`, "error");
+    }
+  };
+
+  const getColorHex = (color?: string) => {
+    switch ((color || "").toLowerCase()) {
+      case "blue": return "#3b82f6";
+      case "green": return "#10b981";
+      case "red": return "#ef4444";
+      case "purple": return "#8b5cf6";
+      case "cyan": return "#06b6d4";
+      case "gray": return "#64748b";
+      case "amber":
+      default:
+        return "#f59e0b";
     }
   };
 
@@ -135,278 +190,539 @@ export const Clients: React.FC = () => {
 
   const activeClient = clients.find((c) => c.id === selectedClientId);
   const clientProjects = projects.filter((p) => p.clientId === selectedClientId);
+  const clientFiles = files.filter((f) => f.clientId === selectedClientId || f.clientName === activeClient?.name);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 20, height: "calc(100vh - 120px)" }}>
-      {/* Left Column: Client List */}
-      <Card padded={false} style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ padding: "16px 16px 12px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Users size={18} color="var(--accent-amber)" />
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
-                Clients ({clients.length})
-              </h3>
-            </div>
-            <Button
-              size="sm"
-              variant="primary"
-              leftIcon={<Plus size={14} />}
-              onClick={() => setShowNewClientModal(true)}
-            >
-              New Client
-            </Button>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Top Header Card / Library Root Navigation */}
+      <Card
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: "var(--bg-surface-elevated)",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "var(--accent-amber-subtle)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid rgba(245, 158, 11, 0.3)",
+            }}
+          >
+            <FolderTree size={20} color="var(--accent-amber)" />
           </div>
-          <SearchBar
-            value={clientSearch}
-            onChange={setClientSearch}
-            onClear={() => setClientSearch("")}
-            placeholder="Search clients or codes..."
-          />
+
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+                Client Library Folders
+              </h2>
+              <Badge variant="amber" size="sm">
+                {clients.length} Clients
+              </Badge>
+              <Badge variant="info" size="sm">
+                {projects.length} Project Subfolders
+              </Badge>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, fontSize: 12, color: "var(--text-muted)" }}>
+              <span>Main Storage Location:</span>
+              <code className="mono-font" style={{ color: "var(--text-secondary)", backgroundColor: "rgba(255,255,255,0.05)", padding: "1px 6px", borderRadius: 4 }}>
+                {libraryRoot}
+              </code>
+              <IconButton
+                icon={<ExternalLink size={13} />}
+                tooltip="Open Library Root in Windows Explorer"
+                size="sm"
+                onClick={() => handleOpenFolder(libraryRoot)}
+              />
+            </div>
+          </div>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "8px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
-          {filteredClients.length === 0 ? (
-            <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
-              {clients.length === 0 ? "No clients registered yet." : "No matching clients found."}
-            </div>
-          ) : (
-            filteredClients.map((client) => {
-              const isSelected = selectedClientId === client.id;
-              const projectCount = projects.filter((p) => p.clientId === client.id).length;
-              return (
-                <div
-                  key={client.id}
-                  onClick={() => setSelectedClientId(client.id)}
-                  style={{
-                    padding: "10px 14px",
-                    borderRadius: "var(--radius-md)",
-                    backgroundColor: isSelected ? "var(--accent-amber-subtle)" : "transparent",
-                    border: `1px solid ${isSelected ? "var(--border-focus)" : "transparent"}`,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                  className="client-list-item"
-                >
-                  <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: isSelected ? "var(--accent-amber)" : "var(--text-primary)",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {client.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
-                      <span className="mono-font" style={{ color: "var(--text-secondary)" }}>{client.code}</span>
-                      <span>•</span>
-                      <span>{projectCount} projects</span>
-                    </div>
-                  </div>
-                  {isSelected && (
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--accent-amber)" }} />
-                  )}
-                </div>
-              );
-            })
-          )}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Button
+            variant="primary"
+            leftIcon={<FolderPlus size={15} />}
+            onClick={() => setShowNewClientModal(true)}
+          >
+            New Client Folder
+          </Button>
         </div>
       </Card>
 
-      {/* Right Column: Selected Client Details & Projects */}
-      <Card padded={false} style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        {activeClient ? (
-          <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
-            {/* Header section */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                  <Building size={22} color="var(--accent-amber)" />
-                  <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)" }}>
-                    {activeClient.name}
-                  </h2>
-                </div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <span>Canonical Code:</span>
-                  <span className="mono-font" style={{ color: "var(--status-info)", fontWeight: 600 }}>{activeClient.code}</span>
-                </div>
+      {/* Main View: Either Folder Grid (when no client is selected) or Deep Client Inspector */}
+      {!activeClient ? (
+        /* Folder Grid View */
+        <Card style={{ padding: 24, display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
+                All Client Folders ({filteredClients.length})
+              </h3>
+              <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                Each folder below represents a physical folder inside <span className="mono-font" style={{ color: "var(--accent-amber)" }}>{libraryRoot}\</span>.
+              </p>
+            </div>
+
+            <div style={{ width: 280 }}>
+              <SearchBar
+                value={clientSearch}
+                onChange={setClientSearch}
+                onClear={() => setClientSearch("")}
+                placeholder="Search client folders..."
+              />
+            </div>
+          </div>
+
+          {filteredClients.length === 0 ? (
+            <EmptyState
+              icon={<FolderPlus size={40} color="var(--text-muted)" />}
+              title="No Client Folders Found"
+              description="Create your first client folder to begin organizing deliverables automatically."
+              actionLabel="Create Client Folder"
+              onAction={() => setShowNewClientModal(true)}
+            />
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 16 }}>
+              {filteredClients.map((client) => {
+                const clientFolderProjects = projects.filter((p) => p.clientId === client.id);
+                const clientFolderFiles = files.filter((f) => f.clientId === client.id || f.clientName === client.name);
+                const folderColor = getColorHex(client.color);
+
+                return (
+                  <Card
+                    key={client.id}
+                    interactive
+                    onClick={() => setSelectedClientId(client.id)}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      gap: 14,
+                      padding: "18px 20px",
+                      borderTop: `3px solid ${folderColor}`,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <Folder size={26} color={folderColor} fill={folderColor} fillOpacity={0.15} />
+                          <div>
+                            <h4 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
+                              {client.name}
+                            </h4>
+                            <span className="mono-font" style={{ fontSize: 11, color: "var(--status-info)", fontWeight: 600 }}>
+                              {client.code}
+                            </span>
+                          </div>
+                        </div>
+
+                        <IconButton
+                          icon={<ExternalLink size={14} />}
+                          tooltip="Open in Windows Explorer"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenFolder(`${libraryRoot}\\${client.name}`);
+                          }}
+                        />
+                      </div>
+
+                      {/* Aliases pill */}
+                      {client.aliases && client.aliases.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 8 }}>
+                          {client.aliases.slice(0, 3).map((alias: string, aIdx: number) => (
+                            <span
+                              key={aIdx}
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 500,
+                                padding: "1px 6px",
+                                borderRadius: 4,
+                                backgroundColor: "rgba(255,255,255,0.06)",
+                                color: "var(--text-secondary)",
+                              }}
+                            >
+                              {alias}
+                            </span>
+                          ))}
+                          {client.aliases.length > 3 && (
+                            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                              +{client.aliases.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid var(--border-subtle)", paddingTop: 10, fontSize: 11, color: "var(--text-muted)" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <Layers size={12} />
+                        {clientFolderProjects.length} Project Subfolders
+                      </span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--accent-amber)" }}>
+                        <FileText size={12} />
+                        {clientFolderFiles.length} files
+                      </span>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+      ) : (
+        /* Detailed Client Folder Explorer View */
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {/* Back Navigation Bar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<ArrowLeft size={14} />}
+                onClick={() => setSelectedClientId(null)}
+              >
+                All Client Folders
+              </Button>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-secondary)" }}>
+                <span>Library</span>
+                <ChevronRight size={14} color="var(--text-muted)" />
+                <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>{activeClient.name}</span>
               </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<ExternalLink size={14} />}
+                onClick={() => handleOpenFolder(`${libraryRoot}\\${activeClient.name}`)}
+              >
+                Open in Windows Explorer
+              </Button>
 
               <Button
                 variant="primary"
+                size="sm"
                 leftIcon={<Plus size={14} />}
                 onClick={() => setShowNewProjectModal(true)}
               >
-                Add Project
+                Add Project Subfolder
               </Button>
             </div>
+          </div>
 
-            {/* Aliases Card */}
-            <Card style={{ marginBottom: 24, backgroundColor: "var(--bg-surface-elevated)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
-                <Tag size={13} />
-                <span>Registered Recognition Aliases</span>
+          {/* Client Folder Overview Card */}
+          <Card style={{ padding: 20, backgroundColor: "var(--bg-surface-elevated)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                  <Folder
+                    size={26}
+                    color={getColorHex(activeClient.color)}
+                    fill={getColorHex(activeClient.color)}
+                    fillOpacity={0.2}
+                  />
+                  <div>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+                      {activeClient.name}
+                    </h3>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                      <span>Canonical Code:</span>
+                      <span className="mono-font" style={{ color: "var(--status-info)", fontWeight: 600 }}>{activeClient.code}</span>
+                      <span>•</span>
+                      <span>Physical Directory:</span>
+                      <code className="mono-font" style={{ color: "var(--text-secondary)" }}>
+                        {libraryRoot}\{activeClient.name}\
+                      </code>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {activeClient.aliases && activeClient.aliases.length > 0 ? (
-                  activeClient.aliases.map((alias: string, aIdx: number) => (
-                    <Badge key={aIdx} variant="amber" size="md">
-                      {alias}
-                    </Badge>
-                  ))
-                ) : (
-                  <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                    No aliases configured yet. The engine will match by canonical name and code.
-                  </span>
-                )}
-              </div>
-            </Card>
 
-            {/* Projects List Section */}
+              {/* Aliases Tags */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  Active Recognition Aliases:
+                </span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {activeClient.aliases && activeClient.aliases.length > 0 ? (
+                    activeClient.aliases.map((alias: string, aIdx: number) => (
+                      <Badge key={aIdx} variant="amber" size="sm">
+                        {alias}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Matches canonical name only</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Subfolders Grid: Project Categories and Years */}
+          <Card style={{ padding: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <FolderTree size={16} color="var(--accent-amber)" />
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
-                  Associated Projects ({clientProjects.length})
-                </h3>
+                <FolderOpen size={18} color="var(--accent-amber)" />
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
+                  Project Subfolders inside {activeClient.name} ({clientProjects.length})
+                </h4>
               </div>
             </div>
 
             {clientProjects.length === 0 ? (
               <EmptyState
-                icon={<Layers size={36} color="var(--text-muted)" />}
-                title="No Projects Configured"
-                description={`Create a project for ${activeClient.name} to start organizing deliverables by year and category.`}
-                actionLabel="Create First Project"
+                icon={<FolderPlus size={36} color="var(--text-muted)" />}
+                title="No Project Subfolders Yet"
+                description={`Create a project subfolder (like "2026/ID Card") to organize deliverables inside ${activeClient.name}.`}
+                actionLabel="Add First Project Subfolder"
                 onAction={() => setShowNewProjectModal(true)}
               />
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
-                {clientProjects.map((p) => (
-                  <Card
-                    key={p.id}
-                    interactive
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      gap: 12,
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
+                {clientProjects.map((p) => {
+                  const projFolderPath = `${libraryRoot}\\${activeClient.name}\\${p.year || 2026}\\${p.name}`;
+                  const projectFileCount = files.filter(
+                    (f) => f.projectId === p.id || (f.projectName === p.name && f.clientName === activeClient.name)
+                  ).length;
+
+                  return (
+                    <div
+                      key={p.id}
+                      style={{
+                        padding: "14px 16px",
+                        backgroundColor: "var(--bg-canvas)",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-md)",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        gap: 10,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <Folder size={16} color="var(--accent-amber)" />
-                          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {p.name}
-                          </span>
+                          <Folder size={18} color="var(--accent-amber)" />
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {p.name}
+                            </div>
+                            <div style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                              <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                                <Calendar size={11} /> {p.year || new Date().getFullYear()}
+                              </span>
+                              <span>•</span>
+                              <span>{p.category || "Design"}</span>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant="success" size="sm">
-                          Active
+
+                        <IconButton
+                          icon={<ExternalLink size={13} />}
+                          tooltip="Open in Windows Explorer"
+                          size="sm"
+                          onClick={() => handleOpenFolder(projFolderPath)}
+                        />
+                      </div>
+
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 8 }}>
+                        <code className="mono-font" style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                          {p.year || 2026}\{p.name}
+                        </code>
+                        <Badge variant="neutral" size="sm">
+                          {projectFileCount} files
                         </Badge>
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <Layers size={12} />
-                          {p.category || "Design"}
-                        </span>
-                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <Calendar size={12} />
-                          {p.year || new Date().getFullYear()}
-                        </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+
+          {/* Files Inside this Client Folder */}
+          <Card style={{ padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <FileText size={18} color="var(--status-info)" />
+                <h4 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
+                  Deliverable Files in {activeClient.name} ({clientFiles.length})
+                </h4>
+              </div>
+            </div>
+
+            {clientFiles.length === 0 ? (
+              <div style={{ padding: "20px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                No files organized under this client folder yet. Drop files into your Inbox to organize automatically.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {clientFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 14px",
+                      backgroundColor: "var(--bg-canvas)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: "var(--radius-md)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "var(--radius-sm)",
+                          backgroundColor: "var(--accent-amber-subtle)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <FileText size={16} color="var(--accent-amber)" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                          {file.filename || file.currentName || file.originalName}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                          <span>{file.projectName || "Design"}</span>
+                          <span>•</span>
+                          <span>{Math.round((file.fileSizeBytes || file.sizeBytes || 0) / 1024)} KB</span>
+                          <span>•</span>
+                          <span className="mono-font">.{file.extension}</span>
+                        </div>
                       </div>
                     </div>
-                  </Card>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <Badge variant="amber" size="sm">
+                        v{file.version || file.versionNumber || 1}
+                      </Badge>
+                      <IconButton
+                        icon={<ExternalLink size={14} />}
+                        tooltip="Reveal in Windows Explorer"
+                        size="sm"
+                        onClick={() => handleRevealFile(file.path || file.currentPath)}
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
-          </div>
-        ) : (
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <EmptyState
-              icon={<Users size={40} color="var(--text-muted)" />}
-              title="Select a Client"
-              description="Choose a client from the left directory to view associated projects, aliases, and folder mappings."
-            />
-          </div>
-        )}
-      </Card>
+          </Card>
+        </div>
+      )}
 
-      {/* New Client Modal */}
+      {/* New Client Folder Modal */}
       <Modal
         isOpen={showNewClientModal}
         onClose={() => setShowNewClientModal(false)}
-        title="Register New Client"
-        subtitle="Add a new client entity to the organization catalog. FolderMate uses this to classify incoming files."
+        title="Create New Client Folder"
+        subtitle="Creates a dedicated folder on your storage drive and configures automatic classification rules."
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowNewClientModal(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleCreateClient} isLoading={isCreatingClient}>
-              Save Client
+            <Button variant="primary" onClick={handleCreateClientFolder} isLoading={isCreatingClient}>
+              Create Client Folder
             </Button>
           </>
         }
       >
-        <form onSubmit={handleCreateClient} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <form onSubmit={handleCreateClientFolder} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <Input
-            label="Client Name *"
-            placeholder="e.g. ABC School"
+            label="Client Folder Name *"
+            placeholder="e.g. ABC School, Apex Healthcare"
             value={newClientName}
             onChange={(e) => setNewClientName(e.target.value)}
             required
             autoFocus
           />
-          <Input
-            label="Client Code"
-            placeholder="e.g. ABCSCH (optional, auto-generated if blank)"
-            value={newClientCode}
-            onChange={(e) => setNewClientCode(e.target.value)}
-          />
-          <Input
-            label="Recognition Aliases"
-            placeholder="Comma-separated: ABC, ABCS, ABC SCHOOL"
-            value={newClientAliases}
-            onChange={(e) => setNewClientAliases(e.target.value)}
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <Input
+              label="Client Code"
+              placeholder="e.g. ABCSCH (optional)"
+              value={newClientCode}
+              onChange={(e) => setNewClientCode(e.target.value)}
+            />
+            <Input
+              label="Recognition Aliases"
+              placeholder="Comma-separated: ABC, ABCS"
+              value={newClientAliases}
+              onChange={(e) => setNewClientAliases(e.target.value)}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+            <Input
+              label="Initial Project Subfolder"
+              placeholder="e.g. ID Card, Magazine"
+              value={initialProjectName}
+              onChange={(e) => setInitialProjectName(e.target.value)}
+            />
+            <Input
+              label="Year Scope"
+              type="number"
+              placeholder="Year"
+              value={initialProjectYear}
+              onChange={(e) => setInitialProjectYear(Number(e.target.value))}
+            />
+          </div>
+
+          <FolderColorPicker
+            label="Windows Folder Color"
+            selectedColor={newClientColor}
+            onChange={setNewClientColor}
           />
         </form>
       </Modal>
 
-      {/* New Project Modal */}
+      {/* New Project Subfolder Modal */}
       <Modal
         isOpen={showNewProjectModal}
         onClose={() => setShowNewProjectModal(false)}
-        title={`Add Project for ${activeClient?.name || "Client"}`}
-        subtitle="Projects define work categories and year scopes within the client directory hierarchy."
+        title={`Add Project Subfolder for ${activeClient?.name || "Client"}`}
+        subtitle="Creates a structured project folder (e.g. 2026\ID Card\) inside this client directory."
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowNewProjectModal(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleCreateProject} isLoading={isCreatingProject}>
-              Create Project
+            <Button variant="primary" onClick={handleCreateProjectSubfolder} isLoading={isCreatingProject}>
+              Create Subfolder
             </Button>
           </>
         }
       >
-        <form onSubmit={handleCreateProject} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <form onSubmit={handleCreateProjectSubfolder} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <Input
             label="Project Name *"
-            placeholder="e.g. ID Card, Annual Magazine, Certificate"
+            placeholder="e.g. ID Card, Annual Magazine, Banner"
             value={newProjectName}
             onChange={(e) => setNewProjectName(e.target.value)}
             required
             autoFocus
           />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <Input
               label="Year Scope *"
               type="number"

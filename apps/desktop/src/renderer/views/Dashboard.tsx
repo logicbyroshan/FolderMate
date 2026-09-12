@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   FileCode,
   FolderOpen,
+  Layers,
 } from "lucide-react";
 import { Card } from "../components/ui/Card.js";
 import { Badge } from "../components/ui/Badge.js";
@@ -76,18 +77,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       onClick: () => onNavigate("review"),
     },
     {
-      title: "Active Clients",
+      title: "Client Folders",
       value: clientsCount,
-      icon: Users,
+      icon: FolderTree,
       variant: "info" as const,
       color: "var(--status-info)",
       bgColor: "var(--status-info-bg)",
       onClick: () => onNavigate("clients"),
     },
     {
-      title: "Active Projects",
+      title: "Project Subfolders",
       value: projectsCount,
-      icon: FolderTree,
+      icon: Layers,
       variant: "amber" as const,
       color: "var(--accent-amber)",
       bgColor: "var(--accent-amber-subtle)",
