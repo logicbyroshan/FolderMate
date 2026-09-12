@@ -8,6 +8,7 @@ import { ReviewQueueRepository } from "./repositories/review-queue.repository.js
 import { EventsRepository } from "./repositories/events.repository.js";
 import { SearchRepository } from "./repositories/search.repository.js";
 import { RulesRepository } from "./repositories/rules.repository.js";
+import { FolderRulesRepository } from "./repositories/folder-rules.repository.js";
 
 export * from "./connection.js";
 export * from "./migrations/migration-runner.js";
@@ -19,6 +20,7 @@ export * from "./repositories/review-queue.repository.js";
 export * from "./repositories/events.repository.js";
 export * from "./repositories/search.repository.js";
 export * from "./repositories/rules.repository.js";
+export * from "./repositories/folder-rules.repository.js";
 
 export class DatabaseManager {
   public readonly db: IDatabase;
@@ -30,6 +32,7 @@ export class DatabaseManager {
   public readonly events: EventsRepository;
   public readonly search: SearchRepository;
   public readonly rules: RulesRepository;
+  public readonly folderRules: FolderRulesRepository;
 
   constructor(options: DatabaseOptions = {}) {
     this.db = createDatabaseConnection(options);
@@ -41,6 +44,7 @@ export class DatabaseManager {
     this.events = new EventsRepository(this.db);
     this.search = new SearchRepository(this.db);
     this.rules = new RulesRepository(this.db);
+    this.folderRules = new FolderRulesRepository(this.db);
   }
 
   public runMigrations(customMigrationsDir?: string): string[] {
