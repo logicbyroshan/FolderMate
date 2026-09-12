@@ -28,6 +28,7 @@ export interface IDatabase {
 
 export class SQLiteDatabaseWrapper implements IDatabase {
   private rawDb: any;
+  private transactionDepth: number = 0;
 
   constructor(dbPath: string, _options: DatabaseOptions = {}) {
     this.rawDb = new DatabaseSync(dbPath);
@@ -66,17 +67,41 @@ export class SQLiteDatabaseWrapper implements IDatabase {
 
   public transaction<T extends (...args: any[]) => any>(fn: T): T {
     return ((...args: any[]) => {
-      this.rawDb.exec("BEGIN IMMEDIATE;");
+      const isOuter = this.transactionDepth === 0;
+      const savepointName = `sp_${this.transactionDepth}`;
+
+      if (isOuter) {
+        this.rawDb.exec("BEGIN IMMEDIATE;");
+      } else {
+        this.rawDb.exec(`SAVEPOINT ${savepointName};`);
+      }
+
+      this.transactionDepth++;
+
       try {
         const result = fn(...args);
-        this.rawDb.exec("COMMIT;");
+        this.transactionDepth--;
+
+        if (isOuter) {
+          this.rawDb.exec("COMMIT;");
+        } else {
+          this.rawDb.exec(`RELEASE ${savepointName};`);
+        }
+
         return result;
       } catch (err) {
+        this.transactionDepth--;
+
         try {
-          this.rawDb.exec("ROLLBACK;");
+          if (isOuter) {
+            this.rawDb.exec("ROLLBACK;");
+          } else {
+            this.rawDb.exec(`ROLLBACK TO ${savepointName};`);
+          }
         } catch {
-          // Ignore rollback errors
+          // ignore rollback error
         }
+
         throw err;
       }
     }) as T;
