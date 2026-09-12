@@ -50,3 +50,4 @@ export const FolderMateConfigSchema = z.object({
 });
 
 export type FolderMateConfig = z.infer<typeof FolderMateConfigSchema>;
+export const DEFAULT_CONFIG: FolderMateConfig = FolderMateConfigSchema.parse({});

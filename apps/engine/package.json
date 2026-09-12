@@ -6,7 +6,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsc -b",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --external:node:sqlite --external:chokidar",
     "clean": "rimraf dist"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
+    "esbuild": "^0.21.5",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }

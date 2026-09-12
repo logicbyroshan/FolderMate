@@ -4,7 +4,10 @@ import { IDatabase } from "../connection.js";
 export class SearchRepository {
   constructor(private db: IDatabase) {}
 
-  public search(query: string, limit: number = 25): SearchResultItemDTO[] {
+  public search(queryOrOptions: string | { query: string; limit?: number }, maybeLimit: number = 25): SearchResultItemDTO[] {
+    const query = typeof queryOrOptions === "string" ? queryOrOptions : queryOrOptions?.query;
+    const limit = typeof queryOrOptions === "object" && queryOrOptions?.limit ? queryOrOptions.limit : maybeLimit;
+
     if (!query || query.trim().length === 0) return [];
 
     // Sanitize query for FTS5 (support prefix queries like "abc*")

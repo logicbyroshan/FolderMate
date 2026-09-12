@@ -9,6 +9,7 @@ export class ClientsRepository {
     const id = client.id || crypto.randomUUID();
     const now = new Date().toISOString();
     const aliasesJson = JSON.stringify(client.aliases || []);
+    const code = client.code || client.name.replace(/[^a-zA-Z0-9]/g, "").substring(0, 8).toUpperCase() || id.substring(0, 8).toUpperCase();
 
     const stmt = this.db.prepare(`
       INSERT INTO clients (id, name, code, aliases_json, notes, is_active, created_at, updated_at)
@@ -18,10 +19,10 @@ export class ClientsRepository {
     stmt.run(
       id,
       client.name,
-      client.code,
+      code,
       aliasesJson,
       client.notes || null,
-      client.isActive ? 1 : 0,
+      client.isActive !== false ? 1 : 0,
       now,
       now
     );

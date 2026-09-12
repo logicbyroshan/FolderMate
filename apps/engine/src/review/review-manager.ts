@@ -10,6 +10,7 @@ export interface ResolveReviewParams {
   year?: number;
   versionNumber?: number;
   learnAlias?: boolean;
+  createNewAlias?: string;
 }
 
 export class ReviewManager {
@@ -88,11 +89,19 @@ export class ReviewManager {
     this.db.reviewQueue.resolve(params.reviewQueueId, "resolved");
 
     // 3. Adaptive Alias Learning
-    if (params.learnAlias) {
+    if (params.createNewAlias) {
+      this.db.clients.addAlias(client.id, params.createNewAlias);
+      this.db.events.record({
+        fileId: moveResult.fileId,
+        eventType: "FILE_ORGANIZED",
+        details: `Learned new alias '${params.createNewAlias}' for client '${client.name}'`,
+      });
+    } else if (params.learnAlias) {
       const originalBasename = reviewItem.originalName.replace(/\.[^/.]+$/, "");
-      const tokens = originalBasename.split(/[\s_\-.]+/).filter((t) => t.length >= 3);
+      const tokens = originalBasename.split(/[\s_\-.]+/).filter((t) => t.length >= 2);
       for (const token of tokens) {
-        if (!client.name.toLowerCase().includes(token.toLowerCase())) {
+        const isExactWordInName = client.name.split(/\s+/).some((w) => w.toLowerCase() === token.toLowerCase());
+        if (!isExactWordInName && !client.aliases.includes(token)) {
           this.db.clients.addAlias(client.id, token);
           this.db.events.record({
             fileId: moveResult.fileId,

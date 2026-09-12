@@ -8,6 +8,7 @@ const { DatabaseSync } = require("node:sqlite");
 
 export interface DatabaseOptions {
   path?: string;
+  dbPath?: string;
   readonly?: boolean;
   fileMustExist?: boolean;
 }
@@ -50,10 +51,13 @@ export class SQLiteDatabaseWrapper implements IDatabase {
 
   public prepare(sql: string): StatementWrapper {
     const stmt = this.rawDb.prepare(sql);
+    const sanitize = (params: any[]) =>
+      params.map((p) => (p === undefined ? null : p));
+
     return {
-      all: (...params: any[]) => stmt.all(...params),
-      get: (...params: any[]) => stmt.get(...params),
-      run: (...params: any[]) => stmt.run(...params),
+      all: (...params: any[]) => stmt.all(...sanitize(params)),
+      get: (...params: any[]) => stmt.get(...sanitize(params)),
+      run: (...params: any[]) => stmt.run(...sanitize(params)),
     };
   }
 
@@ -121,6 +125,6 @@ export function getDatabasePath(): string {
 }
 
 export function createDatabaseConnection(options: DatabaseOptions = {}): IDatabase {
-  const dbPath = options.path || getDatabasePath();
+  const dbPath = options.path || options.dbPath || getDatabasePath();
   return new SQLiteDatabaseWrapper(dbPath, options);
 }

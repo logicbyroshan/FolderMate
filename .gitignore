@@ -56,3 +56,7 @@ coverage/
 *.partial
 *.crswap
 .foldermate_*
+*.tsbuildinfo
+*.d.ts.map
+*.js.map
+release/
