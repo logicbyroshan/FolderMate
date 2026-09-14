@@ -160,7 +160,7 @@ export const AppContent: React.FC = () => {
         <main
           style={{
             flex: 1,
-            padding: "18px 18px 20px",
+            padding: "14px 14px 18px",
             overflowY: "auto",
             backgroundColor: "var(--bg-canvas)",
           }}
