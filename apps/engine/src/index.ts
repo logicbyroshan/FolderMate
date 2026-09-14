@@ -4,7 +4,7 @@ import { DatabaseManager } from "@foldermate/database";
 import { FilePipeline } from "./queue/file-pipeline.js";
 import { AuthManager } from "./ipc/auth-manager.js";
 import { IPCServer } from "./ipc/ipc-server.js";
-import { dispatchRPCMethod, RPCContext } from "./ipc/rpc-dispatcher.js";
+import { RPCContext } from "./ipc/rpc-dispatcher.js";
 import { TwoPhaseMover } from "./organization/two-phase-mover.js";
 import { VersionEngine } from "./versioning/version-engine.js";
 import { ReviewManager } from "./review/review-manager.js";
@@ -55,8 +55,6 @@ async function main() {
   const classifier = new ClassificationPipeline(db);
 
   // 5. Initialize & Start Named Pipe IPC Server
-  const ipcServer = new IPCServer(authManager);
-
   const rpcContext: RPCContext = {
     db,
     config,
@@ -67,9 +65,7 @@ async function main() {
     classifier,
   };
 
-  ipcServer.setRequestHandler(async (method, params) => {
-    return await dispatchRPCMethod(method, params, rpcContext);
-  });
+  const ipcServer = new IPCServer({ authManager, rpcContext });
 
   await ipcServer.start();
   console.log("[Engine] Win32 Named Pipe IPC Server listening at \\\\.\\pipe\\foldermate-ipc");
