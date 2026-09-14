@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] - 2026-09-14
+
+### Added
+- Established the baseline Copilot memory and project instruction system for the repository.
+- Added a mandatory GitHub CLI branch/PR workflow rule to the operating guidance.
+- Kept the documentation set limited to the files required for project understanding and future agent work.
+
 ## [1.0.0] - 2026-09-12
 
 ### Added
