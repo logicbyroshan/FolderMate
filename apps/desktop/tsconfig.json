@@ -16,11 +16,10 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "types": ["react", "react-dom", "node"],
-    "baseUrl": "../..",
     "paths": {
-      "@foldermate/shared": ["packages/shared/src/index.ts"],
-      "@foldermate/database": ["packages/database/src/index.ts"],
-      "@foldermate/config": ["packages/config/src/index.ts"]
+      "@foldermate/shared": ["../../packages/shared/src/index.ts"],
+      "@foldermate/database": ["../../packages/database/src/index.ts"],
+      "@foldermate/config": ["../../packages/config/src/index.ts"]
     }
   },
   "include": ["src"]
