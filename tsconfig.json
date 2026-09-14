@@ -12,10 +12,11 @@
     "declarationMap": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "ignoreDeprecations": "5.0",
     "paths": {
-      "@foldermate/shared": ["packages/shared/src"],
-      "@foldermate/database": ["packages/database/src"],
-      "@foldermate/config": ["packages/config/src"]
+      "@foldermate/shared": ["./packages/shared/src/index.ts"],
+      "@foldermate/database": ["./packages/database/src/index.ts"],
+      "@foldermate/config": ["./packages/config/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "dist", "bridges"]
