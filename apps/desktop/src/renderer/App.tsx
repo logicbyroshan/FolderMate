@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar, NavView } from "./components/Sidebar.js";
+import { TopBar } from "./components/TopBar.js";
 import { Dashboard } from "./views/Dashboard.js";
 import { Search } from "./views/Search.js";
 import { ReviewQueue } from "./views/ReviewQueue.js";
@@ -157,6 +158,14 @@ export const AppContent: React.FC = () => {
 
       {/* Main Workspace Area */}
       <div style={{ display: "flex", flexDirection: "column", flex: 1, height: "100vh", overflow: "hidden" }}>
+        <TopBar
+          onSearchFocus={() => setCurrentView("search")}
+          onScanNow={handleScanNow}
+          onOpenInbox={handleOpenInbox}
+          onOpenStorage={handleOpenStorage}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        />
+
         <main
           style={{
             flex: 1,

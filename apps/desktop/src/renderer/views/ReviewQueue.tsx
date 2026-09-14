@@ -121,108 +121,182 @@ export const ReviewQueue: React.FC = () => {
             const confPct = Math.round(item.confidenceScore * 100);
 
             return (
-              <Card key={item.id} style={{ padding: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <Card
+                key={item.id}
+                style={{
+                  padding: 18,
+                  background: "linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86))",
+                  border: "1px solid rgba(148, 163, 184, 0.18)",
+                  boxShadow: "inset 0 1px 0 rgba(148, 163, 184, 0.08), 0 10px 24px rgba(15, 23, 42, 0.22)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
                     <div
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "var(--radius-sm)",
-                        backgroundColor: "var(--accent-amber-subtle)",
+                        width: 38,
+                        height: 38,
+                        borderRadius: "var(--radius-md)",
+                        background: "linear-gradient(135deg, rgba(251, 191, 36, 0.14), rgba(245, 158, 11, 0.08))",
+                        border: "1px solid rgba(251, 191, 36, 0.28)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
                       <FileQuestion size={18} color="var(--accent-amber)" />
                     </div>
-                    <div>
-                      <span className="mono-font" style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
-                        {item.originalName}
-                      </span>
-                      <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                        <span className="mono-font" style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
+                          {item.originalName}
+                        </span>
+                        <Badge
+                          variant={confPct >= 70 ? "amber" : "danger"}
+                          size="sm"
+                          style={{
+                            padding: "3px 7px",
+                            borderRadius: "var(--radius-sm)",
+                          }}
+                        >
+                          {confPct >= 70 ? "High priority" : "Needs review"}
+                        </Badge>
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.4, wordBreak: "break-word" }}>
                         Detected in Inbox • {item.originalPath}
                       </div>
                     </div>
                   </div>
 
-                  <Badge variant={confPct >= 70 ? "amber" : "danger"} size="md">
+                  <Badge
+                    variant={confPct >= 70 ? "amber" : "danger"}
+                    size="md"
+                    style={{
+                      minWidth: 106,
+                      justifyContent: "center",
+                      borderRadius: "var(--radius-md)",
+                    }}
+                  >
                     {confPct}% Confidence
                   </Badge>
                 </div>
 
-                {/* Reasons Breakdown */}
                 {item.reasons && item.reasons.length > 0 && (
                   <div
                     style={{
-                      backgroundColor: "var(--bg-canvas)",
+                      backgroundColor: "rgba(15, 23, 42, 0.75)",
                       borderRadius: "var(--radius-md)",
-                      padding: "8px 12px",
+                      padding: "10px 12px",
                       marginBottom: 14,
-                      border: "1px solid var(--border-subtle)",
+                      border: "1px solid rgba(148, 163, 184, 0.14)",
                     }}
                   >
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 3 }}>
-                      Inference Rationale:
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 6, letterSpacing: "0.02em" }}>
+                      Inference Rationale
                     </div>
-                    {item.reasons.map((reason: string, rIdx: number) => (
-                      <div key={rIdx} style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
-                        <span>•</span> {reason}
-                      </div>
-                    ))}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                      {item.reasons.map((reason: string, rIdx: number) => (
+                        <div
+                          key={rIdx}
+                          style={{
+                            fontSize: 11,
+                            color: "var(--text-muted)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          <span style={{ width: 5, height: 5, borderRadius: "50%", backgroundColor: "var(--accent-amber)", display: "inline-block" }} />
+                          <span>{reason}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                {/* Proposal Editor & Action Bar */}
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr 120px auto",
+                    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(160px, 0.65fr) auto",
                     gap: 12,
                     alignItems: "flex-end",
                   }}
                 >
-                  <Select
-                    label="Assign Client:"
-                    value={selectedClientMap[item.id] || ""}
-                    onChange={(val) => setSelectedClientMap({ ...selectedClientMap, [item.id]: val })}
-                    options={[
-                      { value: "", label: "-- Select Client --" },
-                      ...clients.map((c) => ({ value: c.id, label: `${c.name} (${c.code})` })),
-                    ]}
-                  />
+                  <div
+                    style={{
+                      backgroundColor: "rgba(15, 23, 42, 0.72)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid rgba(148, 163, 184, 0.12)",
+                      padding: "8px 10px 10px",
+                    }}
+                  >
+                    <Select
+                      label="Assign Client:"
+                      value={selectedClientMap[item.id] || ""}
+                      onChange={(val) => setSelectedClientMap({ ...selectedClientMap, [item.id]: val })}
+                      options={[
+                        { value: "", label: "-- Select Client --" },
+                        ...clients.map((c) => ({ value: c.id, label: `${c.name} (${c.code})` })),
+                      ]}
+                    />
+                  </div>
 
-                  <Select
-                    label="Assign Project:"
-                    value={selectedProjectMap[item.id] || ""}
-                    onChange={(val) => setSelectedProjectMap({ ...selectedProjectMap, [item.id]: val })}
-                    options={[
-                      { value: "", label: "-- Select Project --" },
-                      ...projects.map((p) => ({ value: p.id, label: `${p.name} (${p.year})` })),
-                    ]}
-                  />
+                  <div
+                    style={{
+                      backgroundColor: "rgba(15, 23, 42, 0.72)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid rgba(148, 163, 184, 0.12)",
+                      padding: "8px 10px 10px",
+                    }}
+                  >
+                    <Select
+                      label="Assign Project:"
+                      value={selectedProjectMap[item.id] || ""}
+                      onChange={(val) => setSelectedProjectMap({ ...selectedProjectMap, [item.id]: val })}
+                      options={[
+                        { value: "", label: "-- Select Project --" },
+                        ...projects.map((p) => ({ value: p.id, label: `${p.name} (${p.year})` })),
+                      ]}
+                    />
+                  </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, paddingBottom: 8 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      minHeight: 68,
+                      backgroundColor: "rgba(15, 23, 42, 0.72)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid rgba(148, 163, 184, 0.12)",
+                      padding: "0 12px",
+                    }}
+                  >
                     <input
                       type="checkbox"
                       id={`learn_${item.id}`}
                       checked={learnAliasMap[item.id] ?? true}
                       onChange={(e) => setLearnAliasMap({ ...learnAliasMap, [item.id]: e.target.checked })}
-                      style={{ accentColor: "var(--accent-amber)" }}
+                      style={{ accentColor: "var(--accent-amber)", width: 15, height: 15 }}
                     />
-                    <label htmlFor={`learn_${item.id}`} style={{ fontSize: 11, color: "var(--text-secondary)", cursor: "pointer" }}>
+                    <label htmlFor={`learn_${item.id}`} style={{ fontSize: 11, color: "var(--text-secondary)", cursor: "pointer", lineHeight: 1.2 }}>
                       Learn Alias
                     </label>
                   </div>
 
-                  <div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button
                       variant="primary"
                       size="md"
                       isLoading={isResolving === item.id}
                       rightIcon={<ArrowRight size={14} />}
                       onClick={() => handleResolve(item)}
+                      style={{
+                        minWidth: 140,
+                        boxShadow: "0 8px 18px rgba(251, 191, 36, 0.18)",
+                      }}
                     >
                       Organize Now
                     </Button>
