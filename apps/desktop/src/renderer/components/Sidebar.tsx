@@ -57,14 +57,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               width: 34,
               height: 34,
               borderRadius: "var(--radius-md)",
-              background: "linear-gradient(135deg, #f59e0b, #d97706)",
+              background: "linear-gradient(135deg, #f7c71d, #f5b000)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 16px rgba(245, 158, 11, 0.35)",
+              boxShadow: "0 0 16px rgba(247, 199, 29, 0.35)",
+              overflow: "hidden",
             }}
           >
-            <FolderSync size={18} color="#0f172a" strokeWidth={2.5} />
+            <img src="/favicon.svg" alt="FolderMate logo" style={{ width: 24, height: 24, display: "block" }} />
           </div>
           <div>
             <h1 style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.2px", color: "var(--text-primary)" }}>

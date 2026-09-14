@@ -28,6 +28,8 @@ Major implementation areas are present:
 - Preserve architecture and repo conventions.
 - Keep the memory system synchronized with actual implementation.
 - Use minimal, targeted changes for future work.
+- Maintain a polished, branded desktop shell consistent with the FolderMate identity.
 
 ## Recent important changes
 - Initial bootstrap documentation and persistent project memory system were created.
+- Added the branded desktop shell assets, theme palette, and app icon/favicons for the production-ready app identity.

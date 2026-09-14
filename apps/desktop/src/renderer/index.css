@@ -1,33 +1,40 @@
 :root {
+  /* Brand Palette - FolderMate signature yellow */
+  --brand-primary: #f7c71d;
+  --brand-primary-strong: #f5b000;
+  --brand-primary-soft: #fff0a8;
+  --brand-primary-glow: rgba(247, 199, 29, 0.24);
+  --brand-secondary: #f1a90a;
+
   /* Surface & Canvas Palette */
   --bg-canvas: #090d16;
-  --bg-surface: #0f172a;
-  --bg-elevated: #1e293b;
-  --bg-card: rgba(15, 23, 42, 0.85);
+  --bg-surface: #101827;
+  --bg-elevated: #172136;
+  --bg-card: rgba(16, 24, 39, 0.88);
   --bg-hover: rgba(255, 255, 255, 0.04);
   --bg-active: rgba(255, 255, 255, 0.08);
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(255, 255, 255, 0.15);
-  --border-focus: rgba(245, 158, 11, 0.6);
+  --border-focus: rgba(247, 199, 29, 0.65);
 
-  /* Primary Accent: Warm Amber / Gold (2-5% visible area) */
-  --accent-amber: #f59e0b;
-  --accent-amber-hover: #d97706;
-  --accent-amber-active: #b45309;
-  --accent-amber-subtle: rgba(245, 158, 11, 0.12);
-  --accent-amber-glow: rgba(245, 158, 11, 0.25);
-  --accent-amber-text: #fbbf24;
+  /* Primary Accent: FolderMate Brand Gold */
+  --accent-amber: var(--brand-primary);
+  --accent-amber-hover: var(--brand-secondary);
+  --accent-amber-active: #d79500;
+  --accent-amber-subtle: rgba(247, 199, 29, 0.14);
+  --accent-amber-glow: var(--brand-primary-glow);
+  --accent-amber-text: #ffe782;
 
   /* Semantic Status Colors */
   --status-success: #10b981;
   --status-success-bg: rgba(16, 185, 129, 0.12);
   --status-success-text: #34d399;
 
-  --status-warning: #f59e0b;
-  --status-warning-bg: rgba(245, 158, 11, 0.12);
-  --status-warning-text: #fbbf24;
+  --status-warning: var(--brand-primary);
+  --status-warning-bg: rgba(247, 199, 29, 0.12);
+  --status-warning-text: #ffe782;
 
   --status-danger: #ef4444;
   --status-danger-bg: rgba(239, 68, 68, 0.12);
@@ -109,8 +116,8 @@ body {
 }
 
 .glass-panel-interactive:hover {
-  border-color: rgba(245, 158, 11, 0.35);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 0 12px 0 rgba(245, 158, 11, 0.08);
+  border-color: rgba(247, 199, 29, 0.38);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 0 12px 0 rgba(247, 199, 29, 0.08);
 }
 
 .mono-font {

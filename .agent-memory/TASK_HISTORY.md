@@ -25,3 +25,27 @@ Testing performed:
 - Repository read-through and inspection only; no app files were modified.
 Follow-up:
 - Future tasks should read these memory files first and then inspect only relevant implementation files.
+
+### Brand Refresh for the Desktop App
+Task: Apply the provided FolderMate logo and brand palette across the Electron shell and renderer theme.
+Reason: The product was missing a production-ready brand identity in the desktop shell and app metadata.
+Files/areas affected:
+- `apps/desktop/index.html`
+- `apps/desktop/src/main/index.ts`
+- `apps/desktop/src/main/tray.ts`
+- `apps/desktop/src/renderer/index.css`
+- `apps/desktop/src/renderer/components/Sidebar.tsx`
+- `apps/desktop/public/favicon.svg`
+- `apps/desktop/public/favicon-dark.svg`
+- `apps/desktop/public/favicon.ico`
+- `apps/desktop/public/logo.png`
+- `apps/desktop/package.json`
+What changed:
+- Moved the supplied logo into the app asset pipeline and generated the icon/favicon variants.
+- Wired the app window and tray to use the branded icon and a gold/amber identity.
+- Updated the dark UI palette and shell branding to match the FolderMate visual language.
+Testing performed:
+- Checked asset generation and ran the desktop build: `npm run build --workspace=apps/desktop`.
+Important decisions:
+- The app identity should be visually consistent across window chrome, tray, browser favicon, and packaged installer icon.
+- Production asset generation should be kept in tracked app resources rather than left as temporary local files.

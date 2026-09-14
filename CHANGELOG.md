@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Established the baseline Copilot memory and project instruction system for the repository.
 - Added a mandatory GitHub CLI branch/PR workflow rule to the operating guidance.
 - Kept the documentation set limited to the files required for project understanding and future agent work.
+- Added the branded FolderMate app icon, favicon set, and desktop theme refresh to align the Electron shell with the project logo and yellow brand palette.
 
 ## [1.0.0] - 2026-09-12
 
