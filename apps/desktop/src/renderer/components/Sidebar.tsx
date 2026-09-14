@@ -38,20 +38,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       style={{
-        width: "clamp(180px, 22vw, 230px)",
-        minWidth: 180,
+        width: "clamp(170px, 20vw, 210px)",
+        minWidth: 170,
         height: "100vh",
         backgroundColor: "var(--bg-surface)",
         borderRight: "1px solid var(--border-subtle)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "20px 12px",
+        padding: "16px 10px",
       }}
     >
       <div>
         {/* Brand Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 8px 24px 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 6px 18px 6px" }}>
           <div
             style={{
               width: 34,
@@ -87,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
@@ -100,8 +100,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "9px 12px",
-                  borderRadius: "var(--radius-md)",
+                  padding: "8px 10px",
+                  borderRadius: "var(--radius-sm)",
                   border: "none",
                   cursor: "pointer",
                   backgroundColor: isActive ? "var(--accent-amber-subtle)" : "transparent",
@@ -139,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div
         className="glass-panel"
         style={{
-          padding: "10px 12px",
+          padding: "8px 10px",
           display: "flex",
           alignItems: "center",
           gap: 10,
