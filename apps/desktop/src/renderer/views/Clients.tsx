@@ -39,16 +39,6 @@ export const Clients: React.FC = () => {
   const [libraryRoot, setLibraryRoot] = useState("D:\\Clients");
   const { showToast } = useToast();
 
-  // New Client Folder Modal
-  const [showNewClientModal, setShowNewClientModal] = useState(false);
-  const [newClientName, setNewClientName] = useState("");
-  const [newClientCode, setNewClientCode] = useState("");
-  const [newClientAliases, setNewClientAliases] = useState("");
-  const [newClientColor, setNewClientColor] = useState("Amber");
-  const [initialProjectName, setInitialProjectName] = useState("ID Card");
-  const [initialProjectYear, setInitialProjectYear] = useState(new Date().getFullYear());
-  const [isCreatingClient, setIsCreatingClient] = useState(false);
-
   // New Project Subfolder Modal
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -82,44 +72,6 @@ export const Clients: React.FC = () => {
   useEffect(() => {
     loadData();
   }, []);
-
-  const handleCreateClientFolder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newClientName.trim()) return;
-
-    const aliases = newClientAliases
-      .split(",")
-      .map((a) => a.trim())
-      .filter((a) => a.length > 0);
-
-    setIsCreatingClient(true);
-    try {
-      if ((window as any).foldermate) {
-        const created = await (window as any).foldermate.call("clients.create", {
-          name: newClientName.trim(),
-          code: newClientCode.trim() || newClientName.replace(/\s+/g, "").toUpperCase().slice(0, 6),
-          aliases,
-          color: newClientColor,
-          initialProjectName: initialProjectName.trim(),
-          initialProjectYear: Number(initialProjectYear),
-          initialProjectCategory: initialProjectName.trim(),
-          isActive: true,
-        });
-
-        setNewClientName("");
-        setNewClientCode("");
-        setNewClientAliases("");
-        setShowNewClientModal(false);
-        showToast(`Created client folder "${created.name}" in Library`, "success");
-        await loadData();
-        setSelectedClientId(created.id);
-      }
-    } catch (err: any) {
-      showToast(err.message || "Failed to create client folder", "error");
-    } finally {
-      setIsCreatingClient(false);
-    }
-  };
 
   const handleCreateProjectSubfolder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,15 +200,6 @@ export const Clients: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Button
-            variant="primary"
-            leftIcon={<FolderPlus size={15} />}
-            onClick={() => setShowNewClientModal(true)}
-          >
-            New Client Folder
-          </Button>
-        </div>
       </Card>
 
       {/* Main View: Either Folder Grid (when no client is selected) or Deep Client Inspector */}
@@ -287,9 +230,7 @@ export const Clients: React.FC = () => {
             <EmptyState
               icon={<FolderPlus size={40} color="var(--text-muted)" />}
               title="No Client Folders Found"
-              description="Create your first client folder to begin organizing deliverables automatically."
-              actionLabel="Create Client Folder"
-              onAction={() => setShowNewClientModal(true)}
+              description="No client folders were detected in the configured library root yet."
             />
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: 16 }}>
@@ -629,72 +570,6 @@ export const Clients: React.FC = () => {
           </Card>
         </div>
       )}
-
-      {/* New Client Folder Modal */}
-      <Modal
-        isOpen={showNewClientModal}
-        onClose={() => setShowNewClientModal(false)}
-        title="Create New Client Folder"
-        subtitle="Creates a dedicated folder on your storage drive and configures automatic classification rules."
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setShowNewClientModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleCreateClientFolder} isLoading={isCreatingClient}>
-              Create Client Folder
-            </Button>
-          </>
-        }
-      >
-        <form onSubmit={handleCreateClientFolder} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <Input
-            label="Client Folder Name *"
-            placeholder="e.g. ABC School, Apex Healthcare"
-            value={newClientName}
-            onChange={(e) => setNewClientName(e.target.value)}
-            required
-            autoFocus
-          />
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <Input
-              label="Client Code"
-              placeholder="e.g. ABCSCH (optional)"
-              value={newClientCode}
-              onChange={(e) => setNewClientCode(e.target.value)}
-            />
-            <Input
-              label="Recognition Aliases"
-              placeholder="Comma-separated: ABC, ABCS"
-              value={newClientAliases}
-              onChange={(e) => setNewClientAliases(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
-            <Input
-              label="Initial Project Subfolder"
-              placeholder="e.g. ID Card, Magazine"
-              value={initialProjectName}
-              onChange={(e) => setInitialProjectName(e.target.value)}
-            />
-            <Input
-              label="Year Scope"
-              type="number"
-              placeholder="Year"
-              value={initialProjectYear}
-              onChange={(e) => setInitialProjectYear(Number(e.target.value))}
-            />
-          </div>
-
-          <FolderColorPicker
-            label="Windows Folder Color"
-            selectedColor={newClientColor}
-            onChange={setNewClientColor}
-          />
-        </form>
-      </Modal>
 
       {/* New Project Subfolder Modal */}
       <Modal

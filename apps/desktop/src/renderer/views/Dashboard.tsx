@@ -98,32 +98,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      {/* Welcome Banner */}
-      <Card
-        style={{
-          padding: 24,
-          background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.85))",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>
-            Workspace Engine Active
-          </h2>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Watching Inbox <span className="mono-font" style={{ color: "var(--accent-amber-text)" }}>{status?.inboxPath || "C:\\FolderMate\\Inbox"}</span>
-          </p>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Badge variant="success" dot size="md">
-            Safe Mode: {status?.safeMode ? "Enabled" : "Direct"}
-          </Badge>
-        </div>
-      </Card>
-
       {/* Metric Tiles */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
         {statCards.map((card, i) => {
