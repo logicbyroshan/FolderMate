@@ -38,20 +38,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       style={{
-        width: "clamp(170px, 20vw, 210px)",
-        minWidth: 170,
+        width: "clamp(160px, 18vw, 200px)",
+        minWidth: 160,
         height: "100vh",
         backgroundColor: "var(--bg-surface)",
         borderRight: "1px solid var(--border-subtle)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "16px 10px",
+        padding: "12px 8px 10px",
       }}
     >
       <div>
         {/* Brand Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 6px 18px 6px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "2px 4px 14px 4px" }}>
           <div
             style={{
               width: 34,
@@ -77,17 +77,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
           <div>
-            <h1 style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.2px", color: "var(--text-primary)" }}>
+            <h1 style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.2px", color: "var(--text-primary)" }}>
               FolderMate
             </h1>
-            <p style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
+            <p style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 500 }}>
               Background Organizer
             </p>
           </div>
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
@@ -100,8 +100,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "8px 10px",
-                  borderRadius: "var(--radius-sm)",
+                  padding: "7px 9px",
+                  borderRadius: "2px",
                   border: "none",
                   cursor: "pointer",
                   backgroundColor: isActive ? "var(--accent-amber-subtle)" : "transparent",
@@ -139,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div
         className="glass-panel"
         style={{
-          padding: "8px 10px",
+          padding: "7px 9px",
           display: "flex",
           alignItems: "center",
           gap: 10,
