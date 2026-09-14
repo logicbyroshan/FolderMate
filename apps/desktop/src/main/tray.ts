@@ -2,6 +2,8 @@ import { app, Menu, Tray, nativeImage, BrowserWindow, shell } from "electron";
 import path from "path";
 import { FolderMateIPCClient } from "@foldermate/shared";
 
+const trayIconPath = path.resolve(__dirname, "../../build/icon.ico");
+
 export class TrayManager {
   private tray: Tray | null = null;
   private mainWindow: BrowserWindow | null = null;
@@ -15,8 +17,7 @@ export class TrayManager {
   }
 
   private initializeTray(): void {
-    // Create a 16x16 default icon or load from asset
-    const icon = nativeImage.createEmpty();
+    const icon = nativeImage.createFromPath(trayIconPath);
     this.tray = new Tray(icon);
     this.tray.setToolTip("FolderMate — Your files organize themselves");
 

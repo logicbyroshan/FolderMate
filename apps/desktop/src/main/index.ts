@@ -1,9 +1,11 @@
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, ipcMain, nativeImage, shell } from "electron";
 import path from "path";
 import fs from "fs";
 import { FolderMateIPCClient } from "@foldermate/shared";
 import { getAppDataDir } from "@foldermate/config";
 import { TrayManager } from "./tray.js";
+
+const appIconPath = path.resolve(__dirname, "../../build/icon.ico");
 
 let mainWindow: BrowserWindow | null = null;
 let trayManager: TrayManager | null = null;
@@ -18,6 +20,8 @@ async function getAuthToken(): Promise<string> {
 }
 
 async function createWindow() {
+  const icon = nativeImage.createFromPath(appIconPath);
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 840,
@@ -26,11 +30,12 @@ async function createWindow() {
     frame: true,
     titleBarStyle: "hidden",
     titleBarOverlay: {
-      color: "#0f172a",
-      symbolColor: "#94a3b8",
+      color: "#101827",
+      symbolColor: "#f7c71d",
       height: 38,
     },
     backgroundColor: "#090d16",
+    icon,
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
@@ -89,6 +94,9 @@ ipcMain.handle("foldermate:showItemInFolder", async (_event, filePath: string) =
   shell.showItemInFolder(filePath);
   return true;
 });
+
+app.setName("FolderMate");
+app.setAppUserModelId("com.foldermate.desktop");
 
 app.whenReady().then(createWindow);
 
