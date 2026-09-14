@@ -35,13 +35,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             style={{
               width: "100%",
-              height: 36,
-              paddingLeft: leftIcon ? 34 : 12,
-              paddingRight: rightIcon ? 34 : 12,
+              height: 34,
+              paddingLeft: leftIcon ? 32 : 10,
+              paddingRight: rightIcon ? 32 : 10,
               backgroundColor: "var(--bg-surface)",
               color: "var(--text-primary)",
               border: `1px solid ${error ? "var(--status-danger)" : "var(--border-subtle)"}`,
-              borderRadius: "var(--radius-md)",
+              borderRadius: "var(--radius-sm)",
               fontSize: 13,
               outline: "none",
               transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",

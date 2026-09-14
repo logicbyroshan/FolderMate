@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar, NavView } from "./components/Sidebar.js";
-import { TopBar } from "./components/TopBar.js";
 import { Dashboard } from "./views/Dashboard.js";
 import { Search } from "./views/Search.js";
 import { ReviewQueue } from "./views/ReviewQueue.js";
@@ -15,6 +14,7 @@ export const AppContent: React.FC = () => {
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [engineConnected, setEngineConnected] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [viewportIsValid, setViewportIsValid] = useState(() => window.innerWidth >= 800);
 
   const fetchGlobalStats = async () => {
     try {
@@ -29,6 +29,9 @@ export const AppContent: React.FC = () => {
   };
 
   useEffect(() => {
+    const updateViewport = () => setViewportIsValid(window.innerWidth >= 800);
+    updateViewport();
+
     fetchGlobalStats();
     const interval = setInterval(fetchGlobalStats, 4000);
 
@@ -41,6 +44,7 @@ export const AppContent: React.FC = () => {
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updateViewport);
 
     // Subscribe to IPC server events
     if ((window as any).foldermate?.onEvent) {
@@ -52,6 +56,7 @@ export const AppContent: React.FC = () => {
       return () => {
         clearInterval(interval);
         window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("resize", updateViewport);
         unsubscribe();
       };
     }
@@ -59,6 +64,7 @@ export const AppContent: React.FC = () => {
     return () => {
       clearInterval(interval);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updateViewport);
     };
   }, []);
 
@@ -95,8 +101,52 @@ export const AppContent: React.FC = () => {
     } catch {}
   };
 
+  if (!viewportIsValid) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "var(--bg-canvas)",
+          color: "var(--text-primary)",
+          fontSize: 14,
+          padding: 24,
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 420,
+            textAlign: "center",
+            padding: 24,
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-md)",
+            backgroundColor: "var(--bg-surface)",
+          }}
+        >
+          <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Workspace requires 800px+</div>
+          <div style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            Resize the window to at least 800px wide to continue using the FolderMate workspace.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden", backgroundColor: "var(--bg-canvas)" }}>
+    <div
+      style={{
+        display: "flex",
+        width: "100vw",
+        minWidth: 800,
+        height: "100vh",
+        overflow: "hidden",
+        backgroundColor: "var(--bg-canvas)",
+      }}
+    >
       {/* Fixed Sidebar */}
       <Sidebar
         currentView={currentView}
@@ -107,18 +157,10 @@ export const AppContent: React.FC = () => {
 
       {/* Main Workspace Area */}
       <div style={{ display: "flex", flexDirection: "column", flex: 1, height: "100vh", overflow: "hidden" }}>
-        <TopBar
-          onSearchFocus={() => setCurrentView("search")}
-          onScanNow={handleScanNow}
-          onOpenInbox={handleOpenInbox}
-          onOpenStorage={handleOpenStorage}
-          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-        />
-
         <main
           style={{
             flex: 1,
-            padding: "24px",
+            padding: "18px 18px 20px",
             overflowY: "auto",
             backgroundColor: "var(--bg-canvas)",
           }}

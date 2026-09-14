@@ -28,7 +28,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 24px",
+        padding: "0 18px",
         userSelect: "none",
       }}
     >
@@ -41,8 +41,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           justifyContent: "space-between",
           backgroundColor: "var(--bg-surface)",
           border: "1px solid var(--border-subtle)",
-          padding: "6px 14px",
-          borderRadius: "var(--radius-md)",
+          padding: "6px 12px",
+          borderRadius: "var(--radius-sm)",
           cursor: "pointer",
           width: 320,
           color: "var(--text-muted)",
@@ -62,13 +62,14 @@ export const TopBar: React.FC<TopBarProps> = ({
         </div>
         <kbd
           style={{
-            padding: "1px 5px",
+            padding: "2px 5px",
             fontSize: 10,
             fontWeight: 600,
             color: "var(--text-muted)",
             backgroundColor: "var(--bg-elevated)",
             border: "1px solid var(--border-subtle)",
             borderRadius: "var(--radius-sm)",
+            lineHeight: 1.2,
           }}
         >
           Ctrl+K
@@ -76,7 +77,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* Center / Right Integrations & Action Buttons */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <CorelStatusWidget />
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
