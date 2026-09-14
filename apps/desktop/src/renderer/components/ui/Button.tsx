@@ -22,9 +22,9 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const sizeStyles: Record<string, React.CSSProperties> = {
-    sm: { height: 30, padding: "0 10px", fontSize: 12, borderRadius: "var(--radius-md)", gap: 6 },
-    md: { height: 36, padding: "0 14px", fontSize: 13, borderRadius: "var(--radius-md)", gap: 8 },
-    lg: { height: 42, padding: "0 18px", fontSize: 14, borderRadius: "var(--radius-lg)", gap: 10 },
+    sm: { height: 30, padding: "0 10px", fontSize: 12, borderRadius: "var(--radius-sm)", gap: 6 },
+    md: { height: 34, padding: "0 12px", fontSize: 13, borderRadius: "var(--radius-md)", gap: 8 },
+    lg: { height: 40, padding: "0 16px", fontSize: 14, borderRadius: "var(--radius-md)", gap: 8 },
   };
 
   const variantStyles: Record<string, React.CSSProperties> = {
@@ -32,14 +32,14 @@ export const Button: React.FC<ButtonProps> = ({
       backgroundColor: "var(--accent-amber)",
       color: "var(--text-inverse)",
       fontWeight: 600,
-      border: "none",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+      border: "1px solid rgba(247, 199, 29, 0.5)",
+      boxShadow: "0 1px 0 rgba(0,0,0,0.2)",
     },
     amber: {
       backgroundColor: "var(--accent-amber-subtle)",
       color: "var(--accent-amber-text)",
-      fontWeight: 500,
-      border: "1px solid rgba(245, 158, 11, 0.3)",
+      fontWeight: 600,
+      border: "1px solid rgba(247, 199, 29, 0.28)",
     },
     secondary: {
       backgroundColor: "var(--bg-elevated)",
@@ -51,13 +51,13 @@ export const Button: React.FC<ButtonProps> = ({
       backgroundColor: "transparent",
       color: "var(--text-secondary)",
       fontWeight: 500,
-      border: "none",
+      border: "1px solid transparent",
     },
     danger: {
       backgroundColor: "var(--status-danger-bg)",
       color: "var(--status-danger-text)",
       fontWeight: 500,
-      border: "1px solid rgba(239, 68, 68, 0.3)",
+      border: "1px solid rgba(239, 68, 68, 0.28)",
     },
   };
 
@@ -70,7 +70,7 @@ export const Button: React.FC<ButtonProps> = ({
         justifyContent: "center",
         cursor: disabled || isLoading ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
-        transition: "all 0.15s ease-in-out",
+        transition: "background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease",
         outline: "none",
         ...sizeStyles[size],
         ...variantStyles[variant],

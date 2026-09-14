@@ -1,31 +1,3 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="folderTop" x1="86" y1="88" x2="420" y2="412" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F9D74A"/>
-      <stop offset="0.45" stop-color="#F7C71D"/>
-      <stop offset="1" stop-color="#E8A700"/>
-    </linearGradient>
-    <linearGradient id="folderBody" x1="80" y1="140" x2="420" y2="480" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F9D74A"/>
-      <stop offset="0.5" stop-color="#F5BE19"/>
-      <stop offset="1" stop-color="#E8A700"/>
-    </linearGradient>
-    <linearGradient id="panel" x1="154" y1="162" x2="356" y2="350" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1B1F2A"/>
-      <stop offset="1" stop-color="#0D1118"/>
-    </linearGradient>
-  </defs>
-  <path d="M76 180C76 152.386 98.3858 130 126 130H209.5C225.136 130 239.985 136.571 250.5 147.5L282 180H390C417.614 180 440 202.386 440 230V356C440 383.614 417.614 406 390 406H126C98.3858 406 76 383.614 76 356V180Z" fill="url(#folderTop)"/>
-  <path d="M56 176C56 146.177 80.1766 122 110 122H200.5C218.783 122 235.684 130.226 247.932 144.518L271.5 172H388C423.346 172 452 200.654 452 236V348C452 383.346 423.346 412 388 412H110C80.1766 412 56 387.823 56 358V176Z" fill="url(#folderBody)"/>
-  <path d="M151 189H356C377.539 189 395 206.461 395 228V313C395 334.539 377.539 352 356 352H151C129.461 352 112 334.539 112 313V228C112 206.461 129.461 189 151 189Z" fill="url(#panel)"/>
-  <path d="M182 271C182 252.222 197.222 237 216 237H244C251.732 237 258 243.268 258 251V254H270C296.51 254 318 275.49 318 302V302C318 328.51 296.51 350 270 350H216C197.222 350 182 334.778 182 316V271Z" fill="url(#folderTop)"/> 
-  <path d="M170 252H228.5C239.822 252 249 261.178 249 272.5C249 283.822 239.822 293 228.5 293H170V252Z" fill="url(#folderTop)" opacity="0.92"/>
-  <path d="M265 248L298 306L346 283L314 236L265 248Z" fill="url(#folderTop)"/>
-  <path d="M294 245L310 284L349 268L315 228L294 245Z" fill="#FFF7B8" opacity="0.9"/>
-  <path d="M210 236L241 314L282 294L255 224L210 236Z" fill="url(#folderTop)"/>
-  <path d="M193 188H356C377.539 188 395 205.461 395 227V312C395 333.539 377.539 351 356 351H151C129.461 351 112 333.539 112 312V227C112 205.461 129.461 188 151 188H193Z" stroke="rgba(255,255,255,0.18)" stroke-width="6"/>
-  <path d="M233 155L258 175H274L246 142L233 155Z" fill="#F3C119"/>
-  <path d="M158 210H284" stroke="#F5BE19" stroke-width="18" stroke-linecap="round"/>
-  <path d="M158 258H248" stroke="#F5BE19" stroke-width="18" stroke-linecap="round"/>
-  <path d="M158 306H242" stroke="#F5BE19" stroke-width="18" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <image href="/logo.png?v=2" width="512" height="512" preserveAspectRatio="xMidYMid meet" />
 </svg>

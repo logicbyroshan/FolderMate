@@ -38,15 +38,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       style={{
-        width: 230,
-        minWidth: 230,
+        width: "clamp(180px, 22vw, 230px)",
+        minWidth: 180,
         height: "100vh",
         backgroundColor: "var(--bg-surface)",
         borderRight: "1px solid var(--border-subtle)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "20px 14px",
+        padding: "20px 12px",
       }}
     >
       <div>
@@ -56,16 +56,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
             style={{
               width: 34,
               height: 34,
-              borderRadius: "var(--radius-md)",
-              background: "linear-gradient(135deg, #f7c71d, #f5b000)",
+              borderRadius: 0,
+              background: "transparent",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 16px rgba(247, 199, 29, 0.35)",
-              overflow: "hidden",
+              overflow: "visible",
+              boxShadow: "none",
             }}
           >
-            <img src="/favicon.svg" alt="FolderMate logo" style={{ width: 24, height: 24, display: "block" }} />
+            <img
+              src="/logo.png?v=2"
+              alt="FolderMate logo"
+              style={{
+                width: 34,
+                height: 34,
+                display: "block",
+                objectFit: "contain",
+              }}
+            />
           </div>
           <div>
             <h1 style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.2px", color: "var(--text-primary)" }}>

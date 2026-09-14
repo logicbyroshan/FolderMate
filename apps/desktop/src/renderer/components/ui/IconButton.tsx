@@ -18,15 +18,15 @@ export const IconButton: React.FC<IconButtonProps> = ({
 }) => {
   const sizeMap = {
     sm: { width: 28, height: 28, borderRadius: "var(--radius-sm)" },
-    md: { width: 34, height: 34, borderRadius: "var(--radius-md)" },
-    lg: { width: 40, height: 40, borderRadius: "var(--radius-md)" },
+    md: { width: 32, height: 32, borderRadius: "var(--radius-sm)" },
+    lg: { width: 38, height: 38, borderRadius: "var(--radius-md)" },
   };
 
   const variantStyles: Record<string, React.CSSProperties> = {
     ghost: {
       backgroundColor: "transparent",
       color: "var(--text-secondary)",
-      border: "none",
+      border: "1px solid transparent",
     },
     secondary: {
       backgroundColor: "var(--bg-elevated)",
@@ -36,12 +36,12 @@ export const IconButton: React.FC<IconButtonProps> = ({
     amber: {
       backgroundColor: "var(--accent-amber-subtle)",
       color: "var(--accent-amber-text)",
-      border: "1px solid rgba(245, 158, 11, 0.3)",
+      border: "1px solid rgba(247, 199, 29, 0.28)",
     },
     danger: {
       backgroundColor: "var(--status-danger-bg)",
       color: "var(--status-danger-text)",
-      border: "1px solid rgba(239, 68, 68, 0.3)",
+      border: "1px solid rgba(239, 68, 68, 0.28)",
     },
   };
 
@@ -55,7 +55,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
         justifyContent: "center",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1,
-        transition: "all 0.15s ease-in-out",
+        transition: "background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease",
         outline: "none",
         ...sizeMap[size],
         ...variantStyles[variant],
