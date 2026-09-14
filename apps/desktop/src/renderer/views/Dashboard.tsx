@@ -9,6 +9,7 @@ import {
   FileCode,
   FolderOpen,
   Layers,
+  Search,
 } from "lucide-react";
 import { Card } from "../components/ui/Card.js";
 import { Badge } from "../components/ui/Badge.js";
@@ -142,13 +143,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* Recent Files Table */}
       <Card style={{ padding: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
             Recently Organized Files
           </h3>
-          <Button variant="ghost" size="sm" onClick={() => onNavigate("search")}>
-            View All Files →
-          </Button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <Button variant="secondary" size="sm" leftIcon={<Search size={14} />} onClick={() => onNavigate("search")}>
+              Search Files
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onNavigate("search")}>
+              View All Files →
+            </Button>
+          </div>
         </div>
 
         {files.length === 0 ? (
