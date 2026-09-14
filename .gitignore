@@ -14,6 +14,13 @@ foldermate.db-shm
 .auth_token
 backups/
 
+# Local generated reports / machine files
+audit.json
+.env
+.env.*
+!.env.example
+*.local
+
 # Logs
 logs/
 *.log
